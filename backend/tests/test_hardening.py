@@ -464,3 +464,46 @@ def test_allergen_result_confidence(kb: KnowledgeBase):
     res_low = check_allergens(matches, UserProfile(allergens=["milk"]), parsed, transcription=tx)
     assert res_low.confidence == "low"
 
+
+def test_derived_additives_ins_322_476_1105_150b_150d_might_contain():
+    """Derived additive codes (322, 476, 1105, 150b, 150d) must trigger MIGHT_CONTAIN with KB removed."""
+    test_cases = [
+        ("INS 322", ["soy"], "soy"),
+        ("INS 476", ["soy"], "soy"),
+        ("INS 1105", ["egg"], "egg"),
+        ("INS 150b", ["sulphites"], "sulphites"),
+        ("INS 150d", ["sulphites"], "sulphites"),
+    ]
+    for code, allergens, expected_allergen in test_cases:
+        text = f"Ingredients: Sugar, Flour, {code}."
+        parsed = parse_ingredients(text)
+        # Match with KB completely removed (kb=None)
+        matches = match_ingredients(parsed.ingredients, kb=None)
+        profile = UserProfile(allergens=allergens)
+        res = check_allergens(matches, profile, parsed)
+        assert res.overall_status == AllergenStatus.MIGHT_CONTAIN, (
+            f"Expected MIGHT_CONTAIN for {code} with {allergens}, got {res.overall_status}"
+        )
+        assert any(a.allergen == expected_allergen and a.status == AllergenStatus.MIGHT_CONTAIN for a in res.alerts)
+
+
+def test_derived_additives_unrelated_allergen_clear():
+    """Derived additive codes must NOT trigger false positive alerts for unrelated profiles."""
+    test_cases = [
+        ("INS 322", ["milk"]),       # Lecithin is not dairy
+        ("INS 476", ["peanut"]),     # PGPR is not peanut
+        ("INS 1105", ["milk"]),      # Lysozyme is not dairy
+        ("INS 150b", ["tree_nuts"]), # Caramel 150b is not tree nut
+        ("INS 150d", ["soy"]),       # Caramel 150d is not soy
+    ]
+    for code, allergens in test_cases:
+        text = f"Ingredients: Sugar, Flour, {code}."
+        parsed = parse_ingredients(text)
+        matches = match_ingredients(parsed.ingredients, kb=None)
+        profile = UserProfile(allergens=allergens)
+        res = check_allergens(matches, profile, parsed)
+        # Sugar, Flour, and code are harmless to these profiles
+        assert res.overall_status == AllergenStatus.CLEAR, (
+            f"Expected CLEAR for {code} with {allergens}, got {res.overall_status}"
+        )
+

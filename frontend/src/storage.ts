@@ -42,6 +42,7 @@ export function getStoredProfile(): UserProfile {
     allergens: [],
     custom_allergens: '',
     diet_preferences: [],
+    vegetarian_type: 'no_egg',
   };
 }
 

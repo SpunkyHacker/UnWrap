@@ -9,6 +9,7 @@ interface ChatMessage {
   sender: 'user' | 'assistant';
   text: string;
   timestamp: string;
+  isGeneral?: boolean;
 }
 
 interface IngredientChatModalProps {
@@ -71,10 +72,14 @@ export const IngredientChatModal: React.FC<IngredientChatModalProps> = ({
 
     try {
       const res: ChatResponse = await sendChatQuestion(card.id || card.name, q, card);
+      const isGeneral =
+        res.source === 'general' ||
+        res.answer.toLowerCase().includes('general information, not from the card');
       const botMsg: ChatMessage = {
         id: `b-${Date.now()}`,
         sender: 'assistant',
         text: res.answer,
+        isGeneral,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages((prev) => [...prev, botMsg]);
@@ -146,6 +151,11 @@ export const IngredientChatModal: React.FC<IngredientChatModalProps> = ({
                         : 'bg-zinc-800 text-zinc-200 border border-zinc-700/60 rounded-bl-sm leading-relaxed'
                     }`}
                   >
+                    {msg.isGeneral && (
+                      <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30 mb-1.5">
+                        General information, not from the card
+                      </span>
+                    )}
                     <p className="whitespace-pre-wrap">{msg.text}</p>
                     <span
                       className={`block text-[9px] mt-1 ${
@@ -210,24 +220,31 @@ export const IngredientChatModal: React.FC<IngredientChatModalProps> = ({
                   e.preventDefault();
                   handleSend(inputQuestion);
                 }}
-                className="flex items-center gap-2"
+                className="space-y-1.5"
               >
-                <input
-                  type="text"
-                  value={inputQuestion}
-                  onChange={(e) => setInputQuestion(e.target.value)}
-                  placeholder={`Ask a question about ${card.name}...`}
-                  className="flex-1 bg-zinc-900 border border-zinc-700 rounded-xl px-3.5 py-2.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
-                  disabled={isLoading}
-                />
-                <button
-                  type="submit"
-                  disabled={!inputQuestion.trim() || isLoading}
-                  className="p-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-zinc-950 font-bold transition-all"
-                  aria-label="Send Question"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    maxLength={300}
+                    value={inputQuestion}
+                    onChange={(e) => setInputQuestion(e.target.value)}
+                    placeholder={`Ask a question about ${card.name}...`}
+                    className="flex-1 bg-zinc-900 border border-zinc-700 rounded-xl px-3.5 py-2.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!inputQuestion.trim() || isLoading}
+                    className="p-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-zinc-950 font-bold transition-all shrink-0"
+                    aria-label="Send Question"
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="flex justify-between items-center px-1 text-[10px] text-zinc-500">
+                  <span>Questions are answered from the card or general knowledge.</span>
+                  <span>{inputQuestion.length}/300</span>
+                </div>
               </form>
             </div>
           </motion.div>

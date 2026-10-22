@@ -174,14 +174,16 @@ def test_reanalyze_edits(client: TestClient):
 # Ingredient card endpoint
 # ---------------------------------------------------------------------------
 def test_get_ingredient_known(client: TestClient):
-    """Verify /ingredient/{id} retrieves an existing KB entry."""
+    """Verify /ingredient/{id} retrieves an AI-generated or cached ingredient card."""
     response = client.get("/ingredient/whey_powder")
     assert response.status_code == 200
     data = response.json()
     assert data["id"] == "whey_powder"
-    assert data["canonical_name"].lower() == "whey powder"
-    assert len(data["how_made"]) == 3
-    assert "milk" in data["allergens_direct"]
+    assert "whey" in (data.get("name", "") + data.get("canonical_name", "")).lower()
+    assert len(data.get("how_made", [])) <= 3
+    assert data.get("source") == "ai"
+    assert data.get("verified") is False
+    assert "flags" not in data
 
 
 def test_get_ingredient_unknown_drafts_unverified_card(client: TestClient):
@@ -196,8 +198,10 @@ def test_get_ingredient_unknown_drafts_unverified_card(client: TestClient):
 
 
 def test_get_ingredient_unknown_404_when_draft_disabled(client: TestClient):
-    """Verify /ingredient/{id} returns 404 when draft_if_missing is false."""
-    response = client.get("/ingredient/non_existent_xyz?draft_if_missing=false")
+    """Verify /ingredient/{id} returns 404 when draft_if_missing is false and not in cache."""
+    import uuid
+    rand_id = f"non_existent_{uuid.uuid4().hex[:8]}"
+    response = client.get(f"/ingredient/{rand_id}?draft_if_missing=false")
     assert response.status_code == 404
 
 
@@ -222,7 +226,7 @@ def test_chat_grounded_qa_with_card(client: TestClient):
 
 
 def test_chat_missing_info_in_card(client: TestClient):
-    """Verify /chat states information is not available when out-of-scope."""
+    """Verify /chat provides general information labelled clearly when out of card."""
     payload = {
         "ingredient_id": "salt",
         "question": "What is the stock market ticker symbol for this?",
@@ -230,7 +234,7 @@ def test_chat_missing_info_in_card(client: TestClient):
     response = client.post("/chat", json=payload)
     assert response.status_code == 200
     data = response.json()
-    assert "information is not available" in data["answer"].lower()
+    assert "general information, not from the card" in data["answer"].lower()
     assert len(data["suggested_questions"]) == 3
 
 

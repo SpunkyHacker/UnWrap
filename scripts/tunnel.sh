@@ -14,4 +14,4 @@ echo "=========================================================="
 echo "Open the generated https://*.trycloudflare.com link on your mobile phone."
 echo ""
 
-cloudflared tunnel --url http://localhost:5173
+cloudflared tunnel --url http://127.0.0.1:5173

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import enum
-from typing import Optional
+from typing import Any, Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -83,7 +83,11 @@ class AICardFlags(BaseModel):
 
 
 class AIIngredientCard(BaseModel):
-    """Schema for on-the-fly AI-generated or cached ingredient cards."""
+    """Schema for on-the-fly AI-generated or cached ingredient cards.
+    
+    Dietary suitability flags have been removed; diet conflicts are checked
+    dynamically via the /diet-check endpoint.
+    """
     id: str = ""
     name: str = ""
     canonical_name: str = ""
@@ -93,12 +97,12 @@ class AIIngredientCard(BaseModel):
     origin: str = "unclear"  # plant | animal | fermentation | lab | mineral | unclear
     origin_type: str = "unclear"
     how_made: list[HowMadeStep] = Field(default_factory=list)  # max 3 steps
-    flags: AICardFlags = Field(default_factory=AICardFlags)
-    diet_flags: DietFlags = Field(default_factory=DietFlags)
     verified: bool = False
     source: str = "ai"  # "ai" | "kb"
     status: str = "available"  # "available" | "unavailable"
     confidence: str = "low"
+    llm_provider: Optional[str] = None  # e.g. "xai", "groq", "local"
+    llm_model: Optional[str] = None     # e.g. "grok-2-latest", "qwen/qwen3.8-27b"
 
 
 class IngredientKBEntry(BaseModel):
@@ -195,11 +199,55 @@ class UserProfile(BaseModel):
     allergens: list[str] = Field(default_factory=list)
     custom_allergens: str = ""
     diet_preferences: list[str] = Field(default_factory=list)
+    vegetarian_type: str = "no_egg"  # "no_egg" (default) or "eggs_allowed"
+
+
+# ---------------------------------------------------------------------------
+# Dietary Check Models
+# ---------------------------------------------------------------------------
+class DietStatus(str, enum.Enum):
+    """Dietary conflict status."""
+    CONFLICT = "CONFLICT"
+    MAY_CONFLICT = "MAY_CONFLICT"
+    NO_LISTED_CONFLICT = "NO_LISTED_CONFLICT"
+
+
+class IngredientDietResult(BaseModel):
+    """Dietary check result for a single ingredient."""
+    ingredient: str
+    status: DietStatus
+    reason: str = ""  # max 8 words
+
+
+class DietCheckRequest(BaseModel):
+    """Payload for checking ingredient compatibility against dietary preferences.
+    
+    Contains strictly ingredient names and diet choices. NEVER includes allergens,
+    images, or OCR transcriptions.
+    """
+    ingredients: list[str] = Field(default_factory=list)
+    diets: list[str] = Field(default_factory=list)
+    vegetarian_type: str = "no_egg"  # "no_egg" (default) or "eggs_allowed"
+
+
+class DietCheckResponse(BaseModel):
+    """Aggregate response for dietary compatibility check."""
+    results: list[IngredientDietResult] = Field(default_factory=list)
+    overall_status: DietStatus = DietStatus.NO_LISTED_CONFLICT
+    conflicts_count: int = 0
+    may_conflicts_count: int = 0
+    status: str = "available"  # "available" | "unavailable"
+    error: Optional[str] = None
 
 
 # ---------------------------------------------------------------------------
 # API Request / Response models
 # ---------------------------------------------------------------------------
+class BatchIngredientsRequest(BaseModel):
+    """Request payload to retrieve or generate ingredient cards in batch."""
+    ingredients: list[str] = Field(default_factory=list)
+
+
 class ReanalyzeRequest(BaseModel):
     """Request payload to re-run matching and allergen checking on user-edited ingredients."""
     ingredients: list[str] = Field(default_factory=list)
@@ -211,8 +259,8 @@ class ReanalyzeRequest(BaseModel):
 class ChatRequest(BaseModel):
     """Request for grounded QA on a single ingredient card."""
     ingredient_id: Optional[str] = None
-    ingredient_card: Optional[IngredientKBEntry] = None
-    question: str
+    ingredient_card: Optional[Union[AIIngredientCard, IngredientKBEntry, dict[str, Any]]] = None
+    question: str = Field(..., max_length=300)
     history: list[dict] = Field(default_factory=list)
 
 

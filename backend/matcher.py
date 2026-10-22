@@ -213,30 +213,31 @@ def detect_merged_aliases(name: str, kb: KnowledgeBase) -> list[str]:
 
 def _match_single(
     parsed: ParsedIngredient,
-    kb: KnowledgeBase,
+    kb: Optional[KnowledgeBase],
     config: Settings,
 ) -> MatchResult:
     """Run the matching ladder for a single parsed ingredient.
 
-    Ladder order (stop at first hit):
-    1. Exact name match
+    Ladder order:
+    1. Exact name match (if KB provided)
     2. E-number match
-    3. Fuzzy match (rapidfuzz WRatio)
+    3. Fuzzy match (if KB provided)
     4. LLM pick (skipped unless enabled)
     5. Unknown
     """
     norm_name = _normalise(parsed.name)
 
-    # 1. Exact name match ------------------------------------------------
-    entry = kb.lookup_name(norm_name)
-    if entry is not None:
-        return MatchResult(
-            parsed_name=parsed.name,
-            kb_entry=entry,
-            match_method="exact",
-            match_score=100.0,
-            confidence=_CONFIDENCE["exact"],
-        )
+    # 1. Exact name match (if KB loaded) ---------------------------------
+    if kb is not None:
+        entry = kb.lookup_name(norm_name)
+        if entry is not None:
+            return MatchResult(
+                parsed_name=parsed.name,
+                kb_entry=entry,
+                match_method="exact",
+                match_score=100.0,
+                confidence=_CONFIDENCE["exact"],
+            )
 
     # 2. E-number match ---------------------------------------------------
     from backend.parser import normalize_additive_code
@@ -249,7 +250,7 @@ def _match_single(
                 e_code = normalize_additive_code(m_code.group(1))
 
     if e_code:
-        entry = kb.lookup_e_number(e_code)
+        entry = kb.lookup_e_number(e_code) if kb is not None else None
         if entry is not None:
             return MatchResult(
                 parsed_name=parsed.name,
@@ -259,8 +260,7 @@ def _match_single(
                 confidence=_CONFIDENCE["e_number"],
             )
         else:
-            # Point 6: Recognized unknown additive code (not in KB)
-            # Keep as recognized additive code so it does not cause UNCERTAIN by itself
+            # Recognized additive code
             return MatchResult(
                 parsed_name=parsed.name,
                 kb_entry=None,
@@ -269,8 +269,8 @@ def _match_single(
                 confidence="medium",
             )
 
-    # 3. Fuzzy match (requires at least 5 characters for safety) ---------
-    if len(norm_name) >= 5 and kb._all_names:
+    # 3. Fuzzy match (requires at least 5 characters for safety, if KB loaded)
+    if kb is not None and len(norm_name) >= 5 and kb._all_names:
         best = process.extractOne(
             norm_name,
             kb._all_names,
@@ -290,18 +290,17 @@ def _match_single(
 
     # 4. LLM pick (placeholder — disabled by default) --------------------
     if config.LLM_PICK_ENABLED:
-        # Future: call an LLM to disambiguate
         logger.debug("LLM pick is enabled but not yet implemented for '%s'.", parsed.name)
 
     # 5. Unknown ----------------------------------------------------------
-    suggested = detect_merged_aliases(parsed.name, kb)
+    suggested = detect_merged_aliases(parsed.name, kb) if kb is not None else []
     if suggested:
         parsed.possible_merged = True
         parsed.suggested_split = suggested
         logger.info("Ingredient '%s' marked possible_merged with split: %s", parsed.name, suggested)
 
     _log_unknown(parsed.name)
-    logger.info("No KB match for ingredient '%s' — marked unknown.", parsed.name)
+    logger.info("Ingredient '%s' marked unknown (no KB match).", parsed.name)
     return MatchResult(
         parsed_name=parsed.name,
         kb_entry=None,
@@ -322,20 +321,20 @@ def is_additive_class_item(ingredient: ParsedIngredient) -> bool:
 
 def match_ingredients(
     parsed: list[ParsedIngredient],
-    kb: KnowledgeBase,
+    kb: Optional[KnowledgeBase] = None,
     config: Settings | None = None,
 ) -> list[MatchResult]:
-    """Match a list of parsed ingredients against the knowledge base.
+    """Match a list of parsed ingredients.
 
-    For *group* ingredients (those with ``children``), both the parent **and**
-    each child are matched.  Results are returned as a flat list.
+    When ``kb`` is None, resolves without curated KB lookup: recognizes additive
+    codes by pattern and marks remaining ingredients as unknown.
 
     Parameters
     ----------
     parsed:
         Parsed ingredient list (may include nested children).
     kb:
-        The loaded :class:`KnowledgeBase`.
+        Optional :class:`KnowledgeBase`. If None, runs without KB lookup.
     config:
         Application settings.  Falls back to :func:`get_settings` when
         ``None``.
@@ -343,8 +342,7 @@ def match_ingredients(
     Returns
     -------
     list[MatchResult]
-        One :class:`MatchResult` per ingredient (parents + children
-        flattened).
+        One :class:`MatchResult` per ingredient.
     """
     if config is None:
         config = get_settings()

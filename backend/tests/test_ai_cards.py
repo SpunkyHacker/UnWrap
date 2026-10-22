@@ -89,7 +89,7 @@ def test_validate_and_normalize_card_valid():
     assert norm["why_used"] == "Retards oxidation in oils"
     assert norm["origin"] == "plant"
     assert len(norm["how_made"]) == 3
-    assert norm["flags"]["vegan"] == "likely_yes"
+    assert "flags" not in norm
     assert norm["verified"] is False
     assert norm["source"] == "ai"
 
@@ -174,16 +174,81 @@ async def test_both_providers_fail_returns_unavailable_card(tmp_path):
 
 
 @pytest.mark.asyncio
-async def test_kb_entry_cached_and_never_calls_ai(kb):
-    """If an ingredient is already in the KB (the 69 seed entries), it returns immediately with source='kb'."""
-    entry = kb.get("whey_powder")
-    assert entry is not None
+async def test_disk_cache_used_and_never_calls_ai(tmp_path):
+    """When an ingredient is in disk cache, it returns immediately without calling LLM."""
+    config = Settings(
+        XAI_API_KEY="test_key",
+        GROQ_API_KEY="",
+        AI_CARD_CACHE_DIR=str(tmp_path / "cache"),
+    )
+    # Generate and cache once
+    mock_card = {
+        "name": "Water",
+        "one_liner": "Universal solvent and medium.",
+        "why_used": "Solvent and medium",
+        "origin": "mineral",
+        "role": "base",
+        "how_made": [{"icon": "water", "text": "Filter and purify"}],
+        "flags": {"vegan": "likely_yes", "vegetarian": "likely_yes", "halal": "likely_yes", "jain": "likely_yes"},
+    }
 
-    with patch("backend.ai_cards._call_xai_grok", new=AsyncMock()) as mock_grok:
-        with patch("backend.ai_cards._call_local_model", new=AsyncMock()) as mock_local:
-            card = await get_or_generate_ingredient_card("whey_powder", kb_entry=entry)
-            assert mock_grok.called is False
-            assert mock_local.called is False
-            assert card.id == "whey_powder"
-            assert card.source == "kb"
-            assert card.status == "available"
+    with patch("backend.ai_cards._call_xai_grok", new=AsyncMock(return_value=mock_card)) as mock_grok:
+        card1 = await get_or_generate_ingredient_card("Water", config=config)
+        assert card1.status == "available"
+        assert card1.name == "Water"
+        assert mock_grok.call_count == 1
+
+    # Second call should hit disk cache, zero LLM calls
+    with patch("backend.ai_cards._call_xai_grok", new=AsyncMock()) as mock_grok2:
+        with patch("backend.ai_cards._call_local_model", new=AsyncMock()) as mock_local2:
+            card2 = await get_or_generate_ingredient_card("Water", config=config)
+            assert mock_grok2.called is False
+            assert mock_local2.called is False
+            assert card2.name == "Water"
+            assert card2.status == "available"
+
+
+@pytest.mark.asyncio
+async def test_batch_generation_with_per_chip_fallback(tmp_path):
+    """Batch generation requests cards in single call and falls back per chip if needed."""
+    from backend.ai_cards import get_or_generate_cards_batch
+
+    config = Settings(
+        XAI_API_KEY="test_key",
+        GROQ_API_KEY="",
+        AI_CARD_CACHE_DIR=str(tmp_path / "cache"),
+    )
+
+    batch_payload = {
+        "cards": {
+            "Water": {
+                "name": "Water",
+                "one_liner": "Essential liquid.",
+                "why_used": "Solvent and base",
+                "origin": "mineral",
+                "role": "base",
+                "how_made": [{"icon": "water", "text": "Filter"}],
+                "flags": {"vegan": "likely_yes", "vegetarian": "likely_yes", "halal": "likely_yes", "jain": "likely_yes"},
+            }
+        }
+    }
+
+    # Batch returns 'Water', but misses 'Salt' -> Salt falls back per-chip
+    mock_salt_card = {
+        "name": "Salt",
+        "one_liner": "Mineral compound.",
+        "why_used": "Flavor and preservation",
+        "origin": "mineral",
+        "role": "color_flavor",
+        "how_made": [{"icon": "salt", "text": "Evaporate brine"}],
+        "flags": {"vegan": "likely_yes", "vegetarian": "likely_yes", "halal": "likely_yes", "jain": "likely_yes"},
+    }
+
+    with patch("backend.ai_cards._call_batch_llm", new=AsyncMock(return_value=batch_payload)):
+        with patch("backend.ai_cards._call_xai_grok", new=AsyncMock(return_value=mock_salt_card)):
+            cards = await get_or_generate_cards_batch(["Water", "Salt"], config=config)
+            assert len(cards) == 2
+            assert cards["Water"].name == "Water"
+            assert cards["Water"].role == "base"
+            assert cards["Salt"].name == "Salt"
+            assert cards["Salt"].role == "color_flavor"

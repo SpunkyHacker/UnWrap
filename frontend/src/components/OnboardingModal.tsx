@@ -21,6 +21,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   const [selectedAllergens, setSelectedAllergens] = useState<string[]>(initialProfile.allergens || []);
   const [customText, setCustomText] = useState(initialProfile.custom_allergens || '');
   const [selectedDiets, setSelectedDiets] = useState<string[]>(initialProfile.diet_preferences || []);
+  const [vegetarianType, setVegetarianType] = useState<'no_egg' | 'eggs_allowed'>(
+    initialProfile.vegetarian_type || 'no_egg'
+  );
 
   if (!isOpen) return null;
 
@@ -41,6 +44,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
       allergens: selectedAllergens,
       custom_allergens: customText.trim(),
       diet_preferences: selectedDiets,
+      vegetarian_type: vegetarianType,
     });
     onClose();
   };
@@ -148,6 +152,41 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                 );
               })}
             </div>
+
+            {/* Vegetarian Type Sub-Choice */}
+            {selectedDiets.includes('vegetarian') && (
+              <div className="mt-3 p-3 rounded-2xl bg-zinc-950/60 border border-zinc-800 space-y-2 animate-in fade-in duration-200">
+                <label className="text-[11px] font-semibold text-zinc-300 block">
+                  Vegetarian Type
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setVegetarianType('no_egg')}
+                    className={`p-2.5 rounded-xl border text-xs font-medium text-left transition-all ${
+                      vegetarianType === 'no_egg'
+                        ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-200'
+                        : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200'
+                    }`}
+                  >
+                    <span className="block font-semibold">No eggs</span>
+                    <span className="text-[10px] text-zinc-400">Default vegetarian</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setVegetarianType('eggs_allowed')}
+                    className={`p-2.5 rounded-xl border text-xs font-medium text-left transition-all ${
+                      vegetarianType === 'eggs_allowed'
+                        ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-200'
+                        : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200'
+                    }`}
+                  >
+                    <span className="block font-semibold">Eggs allowed</span>
+                    <span className="text-[10px] text-zinc-400">Ovo-lacto</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

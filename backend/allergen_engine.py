@@ -87,6 +87,21 @@ _RE_LACTATES = re.compile(
     re.IGNORECASE,
 )
 
+# Derived additive codes with potential allergen origins (FDA, EFSA, Codex)
+# These produce MIGHT_CONTAIN (not CONTAINS) because the source may be synthetic or alternative
+DERIVED_ADDITIVE_ALLERGENS: dict[str, list[tuple[str, AllergenStatus, str]]] = {
+    "322": [("soy", AllergenStatus.MIGHT_CONTAIN, "INS 322 (lecithin) may be derived from soy; verify source on packaging")],
+    "476": [("soy", AllergenStatus.MIGHT_CONTAIN, "INS 476 (polyglycerol polyricinoleate) may be derived from or processed with soybean derivatives")],
+    "1105": [("egg", AllergenStatus.MIGHT_CONTAIN, "INS 1105 (lysozyme) is derived from egg whites")],
+    "150b": [("sulphites", AllergenStatus.MIGHT_CONTAIN, "INS 150b (caustic sulphite caramel) is prepared using sulphite compounds")],
+    "150d": [("sulphites", AllergenStatus.MIGHT_CONTAIN, "INS 150d (sulphite ammonia caramel) is prepared using sulphite compounds")],
+}
+
+_RE_DERIVED_ADDITIVE_CODES = re.compile(
+    r"\b(?:INS\s*[-]?\s*|E\s*[-]?\s*)?(322|476|1105|150b|150d)\b",
+    re.IGNORECASE,
+)
+
 
 # ---------------------------------------------------------------------------
 # Hierarchy helpers
@@ -443,6 +458,22 @@ def _scan_raw_text(
                     ))
                 break
 
+    # Derived additive allergen code scan in raw text (e.g. INS 322, 476, 1105, 150b, 150d)
+    for m in _RE_DERIVED_ADDITIVE_CODES.finditer(full_text):
+        c_key = m.group(1).lower()
+        if c_key in DERIVED_ADDITIVE_ALLERGENS:
+            for allergen, status, reason in DERIVED_ADDITIVE_ALLERGENS[c_key]:
+                if allergen in user_allergen_keys or allergen in custom_terms or any(allergen in expanded.get(u, set()) for u in user_allergen_keys):
+                    dedup_key = (allergen, c_key, status)
+                    if dedup_key not in seen:
+                        seen.add(dedup_key)
+                        alerts.append(AllergenAlert(
+                            status=status,
+                            allergen=allergen,
+                            ingredient_name=m.group(0),
+                            reason=reason,
+                        ))
+
     return alerts
 
 
@@ -769,6 +800,35 @@ def check_allergens(
                 ingredient_name="",
                 reason=f"Part of the label could not be read: '{part}'",
             ))
+
+    # Check derived additive allergen codes for all parsed items and matches
+    for match in matches:
+        code_matches = _RE_DERIVED_ADDITIVE_CODES.findall(match.parsed_name)
+        for code_match in code_matches:
+            c_key = code_match.lower()
+            if c_key in DERIVED_ADDITIVE_ALLERGENS:
+                for allergen, status, reason in DERIVED_ADDITIVE_ALLERGENS[c_key]:
+                    if allergen in user_allergen_keys or allergen in custom_terms or any(allergen in expanded.get(u, set()) for u in user_allergen_keys):
+                        add_kb_alert(
+                            status=status,
+                            allergen=allergen,
+                            ingredient_name=match.parsed_name,
+                            reason=reason,
+                        )
+
+    for ing in parsed.ingredients:
+        code_matches = _RE_DERIVED_ADDITIVE_CODES.findall(ing.name)
+        for code_match in code_matches:
+            c_key = code_match.lower()
+            if c_key in DERIVED_ADDITIVE_ALLERGENS:
+                for allergen, status, reason in DERIVED_ADDITIVE_ALLERGENS[c_key]:
+                    if allergen in user_allergen_keys or allergen in custom_terms or any(allergen in expanded.get(u, set()) for u in user_allergen_keys):
+                        add_kb_alert(
+                            status=status,
+                            allergen=allergen,
+                            ingredient_name=ing.name,
+                            reason=reason,
+                        )
 
     full_raw_text = _gather_raw_text(parsed, transcription)
     raw_alerts = _scan_raw_text(full_raw_text, user_allergen_keys, expanded, custom_terms)

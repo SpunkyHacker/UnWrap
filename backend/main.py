@@ -22,18 +22,23 @@ import httpx
 from fastapi import FastAPI, File, Form, HTTPException, Query, Request, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.ai_cards import get_or_generate_ingredient_card
+from backend.ai_cards import get_or_generate_cards_batch, get_or_generate_ingredient_card
 from backend.allergen_engine import check_allergens
 from backend.chat import answer_ingredient_question
 from backend.config import Settings, get_settings
+from backend.diet_check import check_diet_compatibility
 from backend.matcher import KnowledgeBase, _log_unknown, match_ingredients
 from backend.models import (
     AllergenResult,
     AllergenStatus,
     AnalysisResult,
+    BatchIngredientsRequest,
     ChatRequest,
     ChatResponse,
+    DietCheckRequest,
+    DietCheckResponse,
     DietFlags,
+    DietStatus,
     HowMadeStep,
     IngredientKBEntry,
     MatchResult,
@@ -246,17 +251,30 @@ async def analyze_images(
 
     try:
         for idx, upload_file in enumerate(files):
-            # Check file extension
+            # Check file extension or infer from content-type for mobile camera blobs
             filename = upload_file.filename or f"image_{idx}.jpg"
             suffix = Path(filename).suffix.lower()
+            content_type = (upload_file.content_type or "").lower()
+
             if suffix not in ALLOWED_EXTENSIONS:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=(
-                        f"File '{filename}' has unsupported extension '{suffix}'. "
-                        f"Accepted types: JPEG, PNG, WebP, HEIC."
-                    ),
-                )
+                if "jpeg" in content_type or "jpg" in content_type or content_type == "image/*":
+                    suffix = ".jpg"
+                elif "png" in content_type:
+                    suffix = ".png"
+                elif "webp" in content_type:
+                    suffix = ".webp"
+                elif "heic" in content_type or "heif" in content_type:
+                    suffix = ".heic"
+                elif content_type.startswith("image/"):
+                    suffix = ".jpg"
+                else:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=(
+                            f"File '{filename}' has unsupported extension '{suffix}'. "
+                            f"Accepted types: JPEG, PNG, WebP, HEIC."
+                        ),
+                    )
 
             # Read content with 10MB size limit
             content = await upload_file.read()
@@ -302,8 +320,8 @@ async def analyze_images(
                 if m not in parsed.may_contain_allergens:
                     parsed.may_contain_allergens.append(m)
 
-        # 3. Match ingredients against KnowledgeBase
-        matches: list[MatchResult] = match_ingredients(parsed.ingredients, kb)
+        # 3. Match ingredients (without curated KB)
+        matches: list[MatchResult] = match_ingredients(parsed.ingredients)
 
         # 4. Check allergens deterministically
         allergen_res: AllergenResult = check_allergens(
@@ -386,8 +404,8 @@ async def reanalyze_ingredients(payload: ReanalyzeRequest):
         has_ingredients_marker=True,
     )
 
-    # Run deterministic matching ladder
-    matches = match_ingredients(parsed.ingredients, kb)
+    # Run deterministic matching ladder (without curated KB)
+    matches = match_ingredients(parsed.ingredients)
 
     # Run allergen check
     allergen_res = check_allergens(
@@ -414,36 +432,47 @@ async def get_ingredient_card(
     draft_if_missing: bool = Query(True, description="Draft or generate card if not found"),
     request: Request = None,
 ):
-    """Retrieve full ingredient card from KB cache, or generate via Grok / Local fallback and cache on disk."""
-    kb: KnowledgeBase = app.state.kb
+    """Retrieve full ingredient card from disk cache, or generate via Grok / Local fallback and cache on disk.
+
+    Curated KB lookup has been completely removed. Every card is AI-generated and cached.
+    """
     config: Settings = getattr(app.state, "config", get_settings())
-
-    # 1. Try exact ID lookup in KB (existing 69 entries act as cache)
-    entry = kb.get(ingredient_id)
-    if entry is not None:
-        return entry
-
-    # 2. Try normalized name lookup in KB
-    entry = kb.lookup_name(ingredient_id)
-    if entry is not None:
-        return entry
-
-    # 3. If not found and generation disabled: 404
-    if not draft_if_missing:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Ingredient '{ingredient_id}' not found in knowledge base.",
-        )
-
-    # 4. Generate with Grok / local fallback or retrieve from disk cache
     client_ip = request.client.host if (request and request.client) else "127.0.0.1"
+
+    if not draft_if_missing:
+        from backend.ai_cards import get_cached_card, normalize_card_lookup_name
+        cached = get_cached_card(normalize_card_lookup_name(ingredient_id), config)
+        if cached is None or cached.status != "available":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Ingredient card '{ingredient_id}' not found in cache and generation is disabled.",
+            )
+        return cached
+
     card = await get_or_generate_ingredient_card(
         ingredient_name_or_id=ingredient_id,
-        kb_entry=None,
         client_ip=client_ip,
         config=config,
     )
     return card
+
+
+@app.post("/ingredient/batch")
+@app.post("/ingredients/batch")
+async def get_ingredient_cards_batch(
+    payload: BatchIngredientsRequest,
+    request: Request = None,
+):
+    """Retrieve cards for all requested ingredients in batch with minimal Grok calls, per-chip fallback, and disk caching."""
+    config: Settings = getattr(app.state, "config", get_settings())
+    client_ip = request.client.host if (request and request.client) else "127.0.0.1"
+
+    cards = await get_or_generate_cards_batch(
+        ingredients=payload.ingredients,
+        client_ip=client_ip,
+        config=config,
+    )
+    return {"cards": cards}
 
 
 @app.post("/chat", response_model=ChatResponse)
@@ -453,16 +482,15 @@ async def chat_with_ingredient(payload: ChatRequest):
     Card text is treated as data, never instructions. Answers are capped in length
     and accompanied by 3 contextual follow-up questions.
     """
-    kb: KnowledgeBase = app.state.kb
-    config: Settings = app.state.config
+    config: Settings = getattr(app.state, "config", get_settings())
 
     # Resolve card
     card = payload.ingredient_card
     if card is None and payload.ingredient_id:
-        card = kb.get(payload.ingredient_id) or kb.lookup_name(payload.ingredient_id)
-        if card is None:
-            # Draft unverified card
-            card = draft_unverified_card(payload.ingredient_id)
+        card = await get_or_generate_ingredient_card(
+            ingredient_name_or_id=payload.ingredient_id,
+            config=config,
+        )
 
     if card is None:
         raise HTTPException(
@@ -478,3 +506,25 @@ async def chat_with_ingredient(payload: ChatRequest):
         config=config,
     )
     return response
+
+
+@app.post("/diet-check", response_model=DietCheckResponse)
+async def diet_check(payload: DietCheckRequest):
+    """Evaluate ingredient compatibility against user dietary preferences using AI (Groq).
+    
+    Never receives user allergens, product images, or OCR text.
+    """
+    config: Settings = getattr(app.state, "config", get_settings())
+    try:
+        return await check_diet_compatibility(payload, config=config)
+    except Exception as exc:
+        logger.error("Diet check endpoint failed: %s", exc)
+        return DietCheckResponse(
+            results=[],
+            overall_status=DietStatus.NO_LISTED_CONFLICT,
+            conflicts_count=0,
+            may_conflicts_count=0,
+            status="unavailable",
+            error="Diet check unavailable, retry",
+        )
+

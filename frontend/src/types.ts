@@ -104,6 +104,7 @@ export interface UserProfile {
   allergens: string[];
   custom_allergens: string;
   diet_preferences: string[];
+  vegetarian_type?: 'no_egg' | 'eggs_allowed';
 }
 
 export interface CapturedPhoto {
@@ -112,11 +113,21 @@ export interface CapturedPhoto {
   previewUrl: string;
 }
 
-export interface AICardFlags {
-  vegan: 'likely_yes' | 'likely_no' | 'unclear';
-  vegetarian: 'likely_yes' | 'likely_no' | 'unclear';
-  halal: 'likely_yes' | 'likely_no' | 'unclear';
-  jain: 'likely_yes' | 'likely_no' | 'unclear';
+export type DietStatus = 'CONFLICT' | 'MAY_CONFLICT' | 'NO_LISTED_CONFLICT';
+
+export interface IngredientDietResult {
+  ingredient: string;
+  status: DietStatus;
+  reason: string;
+}
+
+export interface DietCheckResponse {
+  results: IngredientDietResult[];
+  overall_status: DietStatus;
+  conflicts_count: number;
+  may_conflicts_count: number;
+  status: 'available' | 'unavailable';
+  error?: string;
 }
 
 export interface AIIngredientCard {
@@ -129,8 +140,6 @@ export interface AIIngredientCard {
   origin: 'plant' | 'animal' | 'fermentation' | 'lab' | 'mineral' | 'unclear' | string;
   origin_type: string;
   how_made: HowMadeStep[];
-  flags: AICardFlags;
-  diet_flags?: DietFlags;
   verified: boolean;
   source: 'ai' | 'kb' | string;
   status: 'available' | 'unavailable' | string;

@@ -1,9 +1,28 @@
-import { AIIngredientCard, AnalysisResponse, ChatResponse, UserProfile } from './types';
+import { AIIngredientCard, AnalysisResponse, ChatResponse, DietCheckResponse, UserProfile } from './types';
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL !== undefined && import.meta.env.VITE_API_BASE_URL !== ''
-    ? import.meta.env.VITE_API_BASE_URL
-    : '/api';
+const API_BASE_URL = (() => {
+  // If running in browser and on a tunnel host, mobile device, or custom domain,
+  // ALWAYS use relative '/api' to avoid Mixed Content (HTTPS -> HTTP) and localhost binding issues.
+  if (
+    typeof window !== 'undefined' &&
+    window.location.hostname !== 'localhost' &&
+    window.location.hostname !== '127.0.0.1'
+  ) {
+    return '/api';
+  }
+
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (
+    envUrl &&
+    envUrl.trim() !== '' &&
+    envUrl !== 'http://localhost:8000' &&
+    envUrl !== 'http://127.0.0.1:8000'
+  ) {
+    return envUrl.replace(/\/+$/, '');
+  }
+
+  return '/api';
+})();
 
 export async function analyzePhotos(
   files: File[],
@@ -84,6 +103,26 @@ export async function fetchIngredientCard(ingredientIdOrName: string): Promise<A
   return response.json();
 }
 
+export async function fetchIngredientCardsBatch(
+  ingredients: string[]
+): Promise<Record<string, AIIngredientCard>> {
+  if (!ingredients || ingredients.length === 0) {
+    return {};
+  }
+  const response = await fetch(`${API_BASE_URL}/ingredient/batch`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ ingredients }),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to load batch ingredient cards (${response.status})`);
+  }
+  const data = await response.json();
+  return data.cards || {};
+}
+
 export async function sendChatQuestion(
   ingredientId: string,
   question: string,
@@ -107,6 +146,30 @@ export async function sendChatQuestion(
 
   if (!response.ok) {
     throw new Error('Chat request failed');
+  }
+
+  return response.json();
+}
+
+export async function performDietCheck(
+  ingredients: string[],
+  diets: string[],
+  vegetarianType: string = 'no_egg'
+): Promise<DietCheckResponse> {
+  const response = await fetch(`${API_BASE_URL}/diet-check`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      ingredients,
+      diets,
+      vegetarian_type: vegetarianType,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Diet check failed with status ${response.status}`);
   }
 
   return response.json();
