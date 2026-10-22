@@ -53,6 +53,7 @@ class ParsedResult(BaseModel):
     may_contain_allergens: list[str] = Field(default_factory=list)
     raw_text: str = ""
     has_ingredients_marker: bool = True
+    corrections: list[dict] = Field(default_factory=list)  # [{original, corrected, score}]
 
 
 # ---------------------------------------------------------------------------
@@ -166,6 +167,7 @@ class AllergenResult(BaseModel):
     overall_status: AllergenStatus = AllergenStatus.CLEAR
     alerts: list[AllergenAlert] = Field(default_factory=list)
     confidence: str = "high"  # "high" | "medium" | "low"
+    confidence_reason: str = ""
     disclaimer: str = (
         "This information is for reference only and does not constitute "
         "medical advice. Always consult product packaging and your "

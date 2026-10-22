@@ -38,6 +38,16 @@ def _normalise(text: str) -> str:
     return _MULTI_SPACE.sub(" ", text.strip().lower())
 
 
+def normalize_e_lookup_keys(e_num: str) -> list[str]:
+    """Generate standard format variations (E, INS, bare) for an additive code."""
+    clean = re.sub(r"[\s\-]", "", e_num.lower())
+    m = re.match(r"^(?:ins|e)?(\d{3,4})([a-z]?(?:\([a-z0-9]+\))?)?$", clean)
+    if not m:
+        return [clean]
+    digits, suffix = m.group(1), m.group(2) or ""
+    return [f"e{digits}{suffix}", f"ins{digits}{suffix}", f"{digits}{suffix}"]
+
+
 # ---------------------------------------------------------------------------
 # KnowledgeBase
 # ---------------------------------------------------------------------------
@@ -109,9 +119,10 @@ class KnowledgeBase:
                 self._all_names.append(norm)
                 self._name_to_entry[norm] = entry
 
-        # E-number index (stored lowercase, e.g. "e322")
+        # E-number index (stored with standard prefix key variations: e322, ins322, 322)
         if entry.e_number:
-            self._e_number_index[entry.e_number.strip().lower()] = entry
+            for k in normalize_e_lookup_keys(entry.e_number):
+                self._e_number_index[k] = entry
 
     # -- public queries ----------------------------------------------------
 
@@ -130,6 +141,10 @@ class KnowledgeBase:
 
     def lookup_e_number(self, e_number: str) -> Optional[IngredientKBEntry]:
         """Return an e-number hit, or ``None``."""
+        for k in normalize_e_lookup_keys(e_number):
+            hit = self._e_number_index.get(k)
+            if hit is not None:
+                return hit
         return self._e_number_index.get(e_number.strip().lower())
 
 
@@ -224,8 +239,17 @@ def _match_single(
         )
 
     # 2. E-number match ---------------------------------------------------
-    if parsed.e_number:
-        entry = kb.lookup_e_number(parsed.e_number)
+    from backend.parser import normalize_additive_code
+    e_code = parsed.e_number
+    if not e_code:
+        e_code = normalize_additive_code(parsed.name)
+        if not e_code:
+            m_code = re.search(r"\(([^)]+)\)", parsed.name)
+            if m_code:
+                e_code = normalize_additive_code(m_code.group(1))
+
+    if e_code:
+        entry = kb.lookup_e_number(e_code)
         if entry is not None:
             return MatchResult(
                 parsed_name=parsed.name,
@@ -233,6 +257,16 @@ def _match_single(
                 match_method="e_number",
                 match_score=100.0,
                 confidence=_CONFIDENCE["e_number"],
+            )
+        else:
+            # Point 6: Recognized unknown additive code (not in KB)
+            # Keep as recognized additive code so it does not cause UNCERTAIN by itself
+            return MatchResult(
+                parsed_name=parsed.name,
+                kb_entry=None,
+                match_method="e_number",
+                match_score=100.0,
+                confidence="medium",
             )
 
     # 3. Fuzzy match (requires at least 5 characters for safety) ---------
@@ -279,6 +313,13 @@ def _match_single(
     )
 
 
+def is_additive_class_item(ingredient: ParsedIngredient) -> bool:
+    """Check if an ingredient is an expanded class-name additive item (e.g. 'Stabilizer (INS 412)')."""
+    from backend.parser import _RE_CLASS_NAME, _extract_paren_group
+    name_part, inner = _extract_paren_group(ingredient.name)
+    return bool(inner and _RE_CLASS_NAME.match(name_part))
+
+
 def match_ingredients(
     parsed: list[ParsedIngredient],
     kb: KnowledgeBase,
@@ -313,8 +354,11 @@ def match_ingredients(
         # Match the ingredient itself
         results.append(_match_single(ingredient, kb, config))
 
-        # Recursively match children (sub-ingredients in parenthesised groups)
+        # Recursively match children (sub-ingredients in parenthesised groups),
+        # but avoid redundant matching if parent is an expanded class additive item
         if ingredient.children:
+            if is_additive_class_item(ingredient):
+                continue
             results.extend(
                 match_ingredients(ingredient.children, kb, config)
             )

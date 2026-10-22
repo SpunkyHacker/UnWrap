@@ -55,3 +55,99 @@ def test_golden_case_no_false_clears(kb: KnowledgeBase, case: dict):
             f"Expected at least MIGHT_CONTAIN in {case.get('_file')}, got {actual_status}. "
             f"Alerts: {[a.reason for a in result.alerts]}"
         )
+
+
+HEINZ_SALAD_CREAM_LABEL = (
+    "White Vinegar, Water, Soya Bean Oil [Protected with Antioxidant (319)], "
+    "Sugar, Egg Yolk, Salt, Mustard, Maize Thickener (1422), Food Acid (270), "
+    "Stabiliser (412), Colours (171, 101), Herb Extract."
+)
+
+
+@pytest.mark.parametrize(
+    "profile_allergens, expected_status",
+    [
+        (["egg"], AllergenStatus.CONTAINS),
+        (["soy"], AllergenStatus.CONTAINS),
+        (["mustard"], AllergenStatus.CONTAINS),
+        (["milk"], AllergenStatus.CLEAR),
+    ],
+    ids=["egg_contains", "soy_contains", "mustard_contains", "milk_clear"],
+)
+def test_golden_heinz_salad_cream_label(kb: KnowledgeBase, profile_allergens: list[str], expected_status: AllergenStatus):
+    """Golden test with the real Heinz Salad Cream label photo transcription.
+
+    - egg -> CONTAINS ('Egg Yolk')
+    - soy -> CONTAINS ('Soya Bean Oil')
+    - mustard -> CONTAINS ('Mustard')
+    - milk -> CLEAR (no dairy ingredients present)
+    """
+    parsed = parse_ingredients(HEINZ_SALAD_CREAM_LABEL)
+
+    # Verify parser extracts the expected items without dropping codes or bracket content
+    parsed_names = [ing.name for ing in parsed.ingredients]
+    assert "Soya Bean Oil" in parsed_names
+    assert "Antioxidant (INS 319)" in parsed_names
+    assert "Maize Thickener (INS 1422)" in parsed_names
+    assert "Food Acid (INS 270)" in parsed_names
+    assert "Stabiliser (INS 412)" in parsed_names
+    assert "Colours (INS 171)" in parsed_names
+    assert "Colours (INS 101)" in parsed_names
+
+    matches = match_ingredients(parsed.ingredients, kb)
+    profile = UserProfile(allergens=profile_allergens)
+    result = check_allergens(matches, profile, parsed)
+
+    assert result.overall_status == expected_status
+
+
+def test_golden_confidence_scoring_and_reason(kb: KnowledgeBase):
+    """Test confidence scoring:
+    - KB-unknown ingredients do NOT lower confidence to 'low'.
+    - Photo/transcription quality triggers 'low' with explicit confidence_reason.
+    """
+    from backend.models import TranscriptionResult
+
+    parsed = parse_ingredients(HEINZ_SALAD_CREAM_LABEL)
+    matches = match_ingredients(parsed.ingredients, kb)
+
+    # Clean transcription with multiple unknown additives -> confidence is high, not low
+    clean_tx = TranscriptionResult(
+        ingredients_text=HEINZ_SALAD_CREAM_LABEL,
+        engine_used="qwen2.5-vl-7b",
+        fallback_occurred=False,
+    )
+    res_clean = check_allergens(matches, UserProfile(allergens=["milk"]), parsed, transcription=clean_tx)
+    assert res_clean.confidence in ("high", "medium")
+    assert res_clean.overall_status == AllergenStatus.CLEAR
+
+    # Unreadable parts -> low confidence with reason
+    unreadable_tx = TranscriptionResult(
+        ingredients_text=HEINZ_SALAD_CREAM_LABEL,
+        engine_used="qwen2.5-vl-7b",
+        unreadable_parts=["crease over ingredient list"],
+    )
+    res_unreadable = check_allergens(matches, UserProfile(allergens=["milk"]), parsed, transcription=unreadable_tx)
+    assert res_unreadable.confidence == "low"
+    assert "crease over ingredient list" in res_unreadable.confidence_reason
+
+    # Fallback engine -> low confidence with reason
+    fallback_tx = TranscriptionResult(
+        ingredients_text=HEINZ_SALAD_CREAM_LABEL,
+        engine_used="apple_vision",
+        fallback_occurred=True,
+    )
+    res_fallback = check_allergens(matches, UserProfile(allergens=["milk"]), parsed, transcription=fallback_tx)
+    assert res_fallback.confidence == "low"
+    assert "fallback" in res_fallback.confidence_reason.lower()
+
+    # >= 3 corrections -> low confidence with reason
+    parsed_many_corrs = parse_ingredients(HEINZ_SALAD_CREAM_LABEL)
+    parsed_many_corrs.corrections = [
+        {"original": "a", "corrected": "b"},
+        {"original": "c", "corrected": "d"},
+        {"original": "e", "corrected": "f"},
+    ]
+    res_corrs = check_allergens(matches, UserProfile(allergens=["milk"]), parsed_many_corrs, transcription=clean_tx)
+    assert res_corrs.confidence == "low"
+    assert "repaired" in res_corrs.confidence_reason.lower()

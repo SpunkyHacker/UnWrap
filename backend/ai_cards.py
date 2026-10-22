@@ -489,9 +489,9 @@ async def get_or_generate_ingredient_card(
     if cached is not None:
         return cached
 
-    # 3. Call Cloud LLMs (Groq / xAI) (Level 1)
-    if cfg.GROQ_API_KEY:
-        raw_data = await _call_groq_api(clean_name, cfg, client_ip)
+    # 3. Call Cloud LLMs: xAI Grok first (Level 1)
+    if cfg.XAI_API_KEY:
+        raw_data = await _call_xai_grok(clean_name, cfg, client_ip)
         if raw_data:
             norm = validate_and_normalize_ai_card(raw_data, clean_name)
             if norm:
@@ -499,8 +499,8 @@ async def get_or_generate_ingredient_card(
                 save_cached_card(card, cfg)
                 return card
 
-    if cfg.XAI_API_KEY:
-        raw_data = await _call_xai_grok(clean_name, cfg, client_ip)
+    if cfg.GROQ_API_KEY:
+        raw_data = await _call_groq_api(clean_name, cfg, client_ip)
         if raw_data:
             norm = validate_and_normalize_ai_card(raw_data, clean_name)
             if norm:

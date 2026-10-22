@@ -134,35 +134,81 @@ def _expand_allergens(
 # ---------------------------------------------------------------------------
 
 
+def allergen_result_confidence_with_reason(
+    matches: list[MatchResult],
+    transcription: TranscriptionResult | None = None,
+    engine_used: str = "",
+    unreadable_parts: list[str] | None = None,
+    parsed: ParsedResult | None = None,
+) -> tuple[str, str]:
+    """Return (confidence, confidence_reason) for the analysis.
+
+    Confidence levels: 'high' | 'medium' | 'low'.
+    Per spec: Stop counting KB-unknown ingredients toward 'low'.
+    Low must come from photo/transcription quality only:
+    - unreadable_parts
+    - OCR fallback (fallback_occurred is True or fallback engine used)
+    - many corrections (>= 3 corrections repaired)
+    - short text (< 30 characters of ingredient text)
+    """
+    # 1. Unreadable parts
+    unreadable = unreadable_parts if unreadable_parts is not None else (
+        transcription.unreadable_parts if transcription else []
+    )
+    if unreadable:
+        return "low", f"Part of label could not be read: {', '.join(unreadable)}"
+
+    # 2. Vision OCR fallback
+    engine = engine_used or (transcription.engine_used if transcription else "")
+    fallback_occ = transcription.fallback_occurred if transcription else False
+    if fallback_occ or engine.lower() in ("failed", "unknown", "apple_vision") or "fallback" in engine.lower():
+        return "low", "Vision fallback engine used"
+
+    # 3. Many OCR corrections (>= 3)
+    corrections_count = 0
+    if transcription and transcription.corrections:
+        corrections_count += len(transcription.corrections)
+    if parsed and getattr(parsed, "corrections", None):
+        corrections_count += len(parsed.corrections)
+    if corrections_count >= 3:
+        return "low", f"Multiple OCR misreads repaired ({corrections_count} corrections)"
+
+    # 4. Very short text (< 15 characters for transcription, < 12 for raw text)
+    if transcription and transcription.ingredients_text:
+        tx_len = len(transcription.ingredients_text.strip())
+        if 0 < tx_len < 15:
+            return "low", "Ingredients text is very short"
+    elif parsed and parsed.raw_text:
+        tx_len = len(parsed.raw_text.strip())
+        if 0 < tx_len < 12:
+            return "low", "Ingredients text is very short"
+
+    # Medium confidence conditions
+    has_fuzzy = any(m.match_method == "fuzzy" for m in matches)
+    if has_fuzzy:
+        return "medium", "Some ingredient names matched fuzzily"
+    if corrections_count > 0:
+        return "medium", "OCR corrections applied"
+
+    return "high", ""
+
+
 def allergen_result_confidence(
     matches: list[MatchResult],
     transcription: TranscriptionResult | None = None,
     engine_used: str = "",
     unreadable_parts: list[str] | None = None,
+    parsed: ParsedResult | None = None,
 ) -> str:
-    """Return overall confidence level ('high' | 'medium' | 'low') for the analysis.
-
-    Does NOT affect the allergen status itself, but guides user verification.
-    """
-    unreadable = unreadable_parts if unreadable_parts is not None else (
-        transcription.unreadable_parts if transcription else []
+    """Return overall confidence level ('high' | 'medium' | 'low') for backward compatibility."""
+    level, _ = allergen_result_confidence_with_reason(
+        matches=matches,
+        transcription=transcription,
+        engine_used=engine_used,
+        unreadable_parts=unreadable_parts,
+        parsed=parsed,
     )
-    if unreadable:
-        return "low"
-
-    unknown_count = sum(1 for m in matches if m.match_method == "unknown")
-    if unknown_count >= 2:
-        return "low"
-
-    engine = engine_used or (transcription.engine_used if transcription else "")
-    if engine.lower() in ("failed", "unknown"):
-        return "low"
-
-    has_fuzzy = any(m.match_method == "fuzzy" for m in matches)
-    if has_fuzzy or unknown_count == 1 or "fallback" in engine.lower():
-        return "medium"
-
-    return "high"
+    return level
 
 
 # ---------------------------------------------------------------------------
@@ -175,6 +221,12 @@ def _gather_raw_text(parsed: ParsedResult, transcription: TranscriptionResult | 
     parts: list[str] = []
     if parsed.raw_text:
         parts.append(parsed.raw_text)
+    if getattr(parsed, "corrections", None):
+        for c in parsed.corrections:
+            if c.get("original"):
+                parts.append(c["original"])
+            if c.get("corrected"):
+                parts.append(c["corrected"])
     if transcription:
         if transcription.ingredients_text:
             parts.append(transcription.ingredients_text)
@@ -765,15 +817,17 @@ def check_allergens(
     # Compute result confidence
     engine_name = transcription.engine_used if transcription else ""
     unreadable_p = transcription.unreadable_parts if transcription else None
-    confidence = allergen_result_confidence(
+    confidence, confidence_reason = allergen_result_confidence_with_reason(
         matches=matches,
         transcription=transcription,
         engine_used=engine_name,
         unreadable_parts=unreadable_p,
+        parsed=parsed,
     )
 
     return AllergenResult(
         overall_status=overall,
         alerts=merged_alerts,
         confidence=confidence,
+        confidence_reason=confidence_reason,
     )

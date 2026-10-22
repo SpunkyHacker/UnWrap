@@ -12,6 +12,7 @@ import {
   Split,
   RefreshCw,
   Camera,
+  Sparkles,
 } from 'lucide-react';
 import { AnalysisResponse, AllergenStatus, UserProfile } from '../types';
 import { EngineBadge } from './EngineBadge';
@@ -55,6 +56,25 @@ export const ConfirmScreen: React.FC<ConfirmScreenProps> = ({
   const [newIngredientText, setNewIngredientText] = useState('');
   const [isAddingNew, setIsAddingNew] = useState(false);
 
+  // Deduplicate OCR corrections from parsed ingredients and transcription
+  const corrections = React.useMemo(() => {
+    const raw = [
+      ...(initialAnalysis.parsed?.corrections || []),
+      ...(initialAnalysis.transcription?.corrections || []),
+    ];
+    const seen = new Set<string>();
+    const list: Array<{ original: string; corrected: string; score: number }> = [];
+    for (const c of raw) {
+      if (!c.original || !c.corrected || c.original.trim() === c.corrected.trim()) continue;
+      const key = `${c.original}-->${c.corrected}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        list.push(c);
+      }
+    }
+    return list;
+  }, [initialAnalysis]);
+
   // Check if unreadable parts or low confidence
   const unreadable = initialAnalysis.transcription?.unreadable_parts || [];
   const confidence = initialAnalysis.allergen_result?.confidence || 'medium';
@@ -85,6 +105,14 @@ export const ConfirmScreen: React.FC<ConfirmScreenProps> = ({
         };
       case 'clear':
       default:
+        // When confidence is low, style amber and warn that reading may be incomplete
+        if (confidence === 'low') {
+          return {
+            label: 'No listed allergens found, but the reading may be incomplete',
+            className: 'bg-amber-500/15 border-amber-500/50 text-amber-300',
+            icon: AlertTriangle,
+          };
+        }
         // NEVER USE THE WORD "SAFE"
         return {
           label: 'NO LISTED ALLERGENS FOUND',
@@ -188,6 +216,11 @@ export const ConfirmScreen: React.FC<ConfirmScreenProps> = ({
           <StatusIcon className="w-5 h-5 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <h3 className="font-bold text-sm tracking-wide">{statusBadge.label}</h3>
+            {initialAnalysis.allergen_result?.confidence_reason && (
+              <p className="text-xs text-amber-200/90 font-medium">
+                Reason: {initialAnalysis.allergen_result.confidence_reason}
+              </p>
+            )}
             {initialAnalysis.allergen_result.alerts.length > 0 ? (
               <ul className="text-xs space-y-1 mt-1 text-zinc-300">
                 {initialAnalysis.allergen_result.alerts.slice(0, 3).map((a, i) => (
@@ -222,6 +255,31 @@ export const ConfirmScreen: React.FC<ConfirmScreenProps> = ({
                 <Camera className="w-3.5 h-3.5" />
                 <span>Snap clearer photo</span>
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* OCR Auto-Corrected Codes Banner */}
+        {corrections.length > 0 && (
+          <div className="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 text-xs space-y-2.5">
+            <div className="flex items-center gap-1.5 text-indigo-300 font-semibold text-sm">
+              <Sparkles className="w-4 h-4 text-indigo-400 shrink-0" />
+              <span>OCR Code Auto-Corrections ({corrections.length})</span>
+            </div>
+            <p className="text-zinc-400 text-[11px] leading-relaxed">
+              Common OCR misreads (such as 0/O, 1/l, 5/S, 2/Z) were automatically corrected to match standard additive codes. Please verify against your label:
+            </p>
+            <div className="flex flex-wrap gap-2 pt-1">
+              {corrections.map((corr, idx) => (
+                <div
+                  key={idx}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-900 border border-indigo-500/40 text-xs shadow-sm"
+                >
+                  <span className="line-through text-zinc-500 font-mono">{corr.original}</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                  <span className="font-bold text-emerald-400 font-mono">{corr.corrected}</span>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -275,6 +333,9 @@ export const ConfirmScreen: React.FC<ConfirmScreenProps> = ({
             {chips.map((chip) => {
               const isEditing = editingId === chip.id;
               const isMerged = chip.possible_merged;
+              const matchedCorr = corrections.find((c) =>
+                chip.name.toLowerCase().includes(c.corrected.toLowerCase())
+              );
 
               if (isEditing) {
                 return (
@@ -320,9 +381,17 @@ export const ConfirmScreen: React.FC<ConfirmScreenProps> = ({
                 >
                   <span
                     onClick={() => handleStartEdit(chip)}
-                    className="cursor-pointer hover:underline underline-offset-2"
+                    className="cursor-pointer hover:underline underline-offset-2 flex items-center gap-1.5"
                   >
-                    {chip.name}
+                    <span>{chip.name}</span>
+                    {matchedCorr && (
+                      <span
+                        className="text-[10px] font-mono text-indigo-300 bg-indigo-500/20 border border-indigo-500/40 px-1.5 py-0.5 rounded-md"
+                        title={`OCR corrected from '${matchedCorr.original}'`}
+                      >
+                        was {matchedCorr.original}
+                      </span>
+                    )}
                   </span>
                   <button
                     onClick={() => handleStartEdit(chip)}

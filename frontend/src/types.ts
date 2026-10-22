@@ -11,6 +11,7 @@ export interface AllergenResult {
   overall_status: AllergenStatus;
   alerts: AllergenAlert[];
   confidence: 'high' | 'medium' | 'low';
+  confidence_reason?: string;
   disclaimer: string;
 }
 
@@ -91,6 +92,7 @@ export interface AnalysisResponse {
     may_contain_allergens: string[];
     raw_text: string;
     has_ingredients_marker: boolean;
+    corrections?: Array<{ original: string; corrected: string; score: number }>;
   };
   matches: MatchResult[];
   allergen_result: AllergenResult;

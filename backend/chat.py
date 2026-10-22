@@ -201,7 +201,68 @@ def answer_ingredient_question(
 
     fallback_suggestions = _generate_fallback_suggestions(card)
 
-    # Attempt Groq first if configured
+    # Attempt xAI Grok first if configured
+    if config.XAI_API_KEY:
+        try:
+            from backend.ai_cards import get_rate_limiter
+            limiter = get_rate_limiter()
+            allowed, _ = limiter.check_and_record("chat_client", config.GROK_RPM_LIMIT, config.GROK_DAILY_CAP)
+            if allowed:
+                card_data = build_card_context_prompt(card)
+                messages = [
+                    {"role": "system", "content": STRICT_GROUNDED_SYSTEM_PROMPT},
+                    {"role": "user", "content": f"{card_data}\n\nQuestion: {clean_question}"},
+                ]
+                url = f"{config.XAI_BASE_URL.rstrip('/')}/chat/completions"
+                headers = {
+                    "Authorization": f"Bearer {config.XAI_API_KEY}",
+                    "Content-Type": "application/json",
+                }
+                with httpx.Client(timeout=10.0) as client:
+                    res = client.post(
+                        url,
+                        headers=headers,
+                        json={
+                            "model": config.XAI_MODEL,
+                            "messages": messages,
+                            "response_format": {"type": "json_object"},
+                            "temperature": 0.1,
+                            "max_tokens": 250,
+                        },
+                    )
+                    if res.status_code == 200:
+                        payload = res.json()
+                        content = payload.get("choices", [{}])[0].get("message", {}).get("content", "")
+                        clean_content = re.sub(r"^```(?:json)?\s*|\s*```$", "", content.strip(), flags=re.DOTALL).strip()
+                        try:
+                            parsed_llm = json.loads(clean_content)
+                            ans = parsed_llm.get("answer", "").strip()
+                            sq = parsed_llm.get("suggested_questions", [])
+                            if ans:
+                                words = ans.split()
+                                if len(words) > 85:
+                                    ans = " ".join(words[:85]) + "..."
+                                return ChatResponse(
+                                    answer=ans,
+                                    suggested_questions=sq if len(sq) == 3 else fallback_suggestions,
+                                    ingredient_id=card.id,
+                                    source="grok",
+                                )
+                        except Exception:
+                            if clean_content:
+                                words = clean_content.split()
+                                if len(words) > 85:
+                                    clean_content = " ".join(words[:85]) + "..."
+                                return ChatResponse(
+                                    answer=clean_content,
+                                    suggested_questions=fallback_suggestions,
+                                    ingredient_id=card.id,
+                                    source="grok",
+                                )
+        except Exception as exc:
+            logger.warning("xAI Grok chat failed (%s); falling back.", exc)
+
+    # Attempt Groq if configured as secondary cloud fallback
     if config.GROQ_API_KEY:
         try:
             from backend.ai_cards import get_rate_limiter

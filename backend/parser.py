@@ -6,10 +6,13 @@ statements.  Every decision is rule-based — no AI model is involved.
 """
 from __future__ import annotations
 
+import logging
 import re
 from typing import Optional
 
 from backend.models import ParsedIngredient, ParsedResult
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -34,14 +37,74 @@ _RE_MAY_CONTAIN = re.compile(
     re.IGNORECASE,
 )
 
-# E-number variants:  E330, E 330, INS 330, INS330, (330)
+# E-number variants: E330, E-322, E 330, INS 330, INS330, (330), bare 330, 160a(i), 150(iv)
 _RE_E_NUMBER = re.compile(
     r"""
-    (?:E\s*(\d{3,4}[a-z]?(?:i{0,3}|iv|v)?))  # E330, E 330, E330i, E330ii
-    |(?:INS\s*(\d{3,4}[a-z]?(?:i{0,3}|iv|v)?))  # INS330, INS 330
-    |(?:^\((\d{3,4}[a-z]?(?:i{0,3}|iv|v)?)\)$)   # (330) standalone
+    (?:E\s*[-]?\s*(\d{3,4}[a-z]?(?:\([ivxIVX0-9a-zA-Z]+\)|i{0,3}|iv|v)?))
+    |(?:INS\s*[-]?\s*(\d{3,4}[a-z]?(?:\([ivxIVX0-9a-zA-Z]+\)|i{0,3}|iv|v)?))
+    |(?:^\(?(\d{3,4}[a-z]?(?:\([ivxIVX0-9a-zA-Z]+\)|i{0,3}|iv|v)?)\)?$)
     """,
     re.IGNORECASE | re.VERBOSE,
+)
+
+# Common OCR misreads in digit positions for additive codes (O/0, l/1, S/5, Z/2)
+_MISREAD_MAP = {
+    "O": "0", "o": "0",
+    "l": "1", "I": "1", "|": "1",
+    "S": "5", "s": "5",
+    "Z": "2", "z": "2",
+}
+
+# Regex matching candidate additive codes that may have OCR misreads in digit positions
+_RE_CODE_CANDIDATE = re.compile(
+    r"""(?xi)
+    \b
+    (?P<prefix>INS\s*[-]?\s*|E\s*[-]?\s*)?
+    (?P<digits>[0-9OlISZolisz]{3,4})
+    (?P<suffix>[a-zA-Z]?(?:\([ivxIVX0-9a-zA-Z]+\))?)
+    \b
+    """
+)
+
+# Canonical additive code matcher (digits + optional suffix)
+_RE_ADDITIVE_CODE = re.compile(
+    r"""(?xi)
+    ^\s*
+    (?:INS\s*[-]?\s*|E\s*[-]?\s*)?
+    (?P<digits>\d{3,4})
+    (?P<suffix>[a-zA-Z]?(?:\([ivxIVX0-9a-zA-Z]+\))?)
+    \s*$
+    """
+)
+
+# Recognized additive class names:
+# stabilizer/stabiliser, emulsifier, preservative, colour/color, acidity regulator,
+# antioxidant, raising agent, anti-caking agent, thickener, sweetener, flavour enhancer, food acid
+_CLASS_NAME_PATTERNS = [
+    r"anti[-\s]?caking\s+agents?",
+    r"acidity\s+regulators?",
+    r"food\s+acids?",
+    r"flavo?u?r\s+enhancers?",
+    r"raising\s+agents?",
+    r"anti[-\s]?oxidants?",
+    r"thickening\s+agents?",
+    r"thickeners?",
+    r"stabili[zs]ers?",
+    r"emulsifiers?",
+    r"preservatives?",
+    r"colou?ri?ngs?",
+    r"colou?rs?",
+    r"sweeteners?",
+]
+_RE_CLASS_NAME = re.compile(
+    r"^(" + "|".join(_CLASS_NAME_PATTERNS) + r")$",
+    re.IGNORECASE,
+)
+
+# Protective or descriptive clause prefixes inside brackets like "Protected with Antioxidant (319)"
+_RE_PROTECTIVE_PREFIX = re.compile(
+    r"^(?:protected|preserved|treated|fortified|prepared)?\s*with\s+",
+    re.IGNORECASE,
 )
 
 # Percentage:  "60%", "(60%)", "10 %", "2.5%"
@@ -67,6 +130,88 @@ _RE_MULTI_SPACE = re.compile(r"\s{2,}")
 def _normalise_whitespace(text: str) -> str:
     """Collapse multiple spaces and strip."""
     return _RE_MULTI_SPACE.sub(" ", text).strip()
+
+
+def repair_additive_ocr(text: str) -> tuple[str, list[dict]]:
+    """Fix common OCR misreads (O/0, l/1, S/5, Z/2) in additive code candidates.
+
+    Returns the repaired text and the list of recorded corrections:
+    [{"original": str, "corrected": str, "score": 0.95}].
+    """
+    corrections: list[dict] = []
+
+    def _repl(m: re.Match) -> str:
+        prefix = m.group("prefix") or ""
+        digits_raw = m.group("digits")
+        suffix = m.group("suffix") or ""
+        has_prefix = bool(prefix.strip())
+        has_misreads = any(ch in _MISREAD_MAP for ch in digits_raw)
+        has_digits = any(ch.isdigit() for ch in digits_raw)
+        if (has_prefix or has_digits) and has_misreads:
+            fixed_digits = "".join(_MISREAD_MAP.get(ch, ch) for ch in digits_raw)
+            if fixed_digits.isdigit() and len(fixed_digits) in (3, 4):
+                original_token = m.group(0)
+                corrected_token = f"{prefix}{fixed_digits}{suffix}"
+                if original_token != corrected_token:
+                    corrections.append({
+                        "original": original_token,
+                        "corrected": corrected_token,
+                        "score": 0.95,
+                    })
+                    logger.info("OCR repaired additive code: '%s' -> '%s'", original_token, corrected_token)
+                    return corrected_token
+        return m.group(0)
+
+    repaired = _RE_CODE_CANDIDATE.sub(_repl, text)
+    return repaired, corrections
+
+
+def normalize_additive_code(raw: str) -> Optional[str]:
+    """Map E322, E-322, E 322, INS 322, INS322, and a bare 322 to canonical 'INS 322'.
+
+    Preserves letter suffixes (150d, 160a) and nested Roman numerals like 150(iv) and 160a(i).
+    Logs the original text.
+    """
+    if not raw or not raw.strip():
+        return None
+    m = _RE_ADDITIVE_CODE.match(raw.strip())
+    if not m:
+        return None
+    digits = m.group("digits")
+    suffix = m.group("suffix") or ""
+    canonical = f"INS {digits}{suffix}"
+    logger.info("Normalized additive code '%s' -> '%s'", raw.strip(), canonical)
+    return canonical
+
+
+def is_pure_additive_code(text: str) -> bool:
+    """Return True if the entire string represents an additive code."""
+    if not text or not text.strip():
+        return False
+    return bool(_RE_ADDITIVE_CODE.match(text.strip()))
+
+
+def parse_additive_codes_from_inner(inner: str) -> Optional[list[str]]:
+    """Parse comma-separated additive codes from the inside of a class bracket.
+
+    Returns a list of canonical codes (e.g. ['INS 412', 'INS 415']) if ALL
+    non-empty chunks are additive codes. Returns None if any chunk is not a code.
+    """
+    if not inner or not inner.strip():
+        return None
+    parts = _split_top_level(inner, separators=",")
+    if not parts:
+        return None
+    codes: list[str] = []
+    for p in parts:
+        clean = p.strip()
+        if not clean:
+            continue
+        c = normalize_additive_code(clean)
+        if c is None:
+            return None
+        codes.append(c)
+    return codes if codes else None
 
 
 def _extract_e_number(text: str) -> Optional[str]:
@@ -169,6 +314,11 @@ def _extract_paren_group(text: str) -> tuple[str, Optional[str]]:
           "Wheat Flour (60%)"                 ->  ("Wheat Flour", "60%")
           "Salt"                              ->  ("Salt", None)
     """
+    text_clean = text.strip()
+    # Standalone additive codes like E160a(i) or 150(iv) must not have nested parens stripped
+    if is_pure_additive_code(text_clean):
+        return text_clean, None
+
     # Find the first top-level opening paren/bracket
     depth = 0
     for i, ch in enumerate(text):
@@ -303,8 +453,12 @@ def _parse_single_ingredient(raw: str, position: int = 0) -> ParsedIngredient:
     # Clean final name
     name_part = _clean_name(name_part)
 
-    # Extract E-number from the cleaned name
+    # Extract E-number from the cleaned name or inner code
     e_number = _extract_e_number(name_part)
+    if not e_number and inner:
+        e_number = _extract_e_number(inner) or normalize_additive_code(inner)
+    if not e_number:
+        e_number = normalize_additive_code(raw)
 
     return ParsedIngredient(
         name=name_part,
@@ -384,8 +538,98 @@ def parse_ingredients(text: str) -> ParsedResult:
 
     # 6. Parse each top-level ingredient
     ingredients: list[ParsedIngredient] = []
-    for idx, raw_part in enumerate(top_parts):
-        ingredient = _parse_single_ingredient(raw_part, position=idx)
+    corrections: list[dict] = []
+    for raw_part in top_parts:
+        # Step 6a: OCR repair on candidate codes
+        repaired_part, part_corrections = repair_additive_ocr(raw_part)
+        corrections.extend(part_corrections)
+
+        # Step 6b: Check if this chunk has parenthesised / bracketed additive code(s) or clauses
+        name_part, inner = _extract_paren_group(repaired_part)
+        if inner:
+            # Case 1: Pure additive code(s) inside brackets
+            # Per spec: Keep a trailing code on ANY "<name> (<code>)" item, not only known class names.
+            codes = parse_additive_codes_from_inner(inner)
+            if codes:
+                for code in codes:
+                    child_e = _extract_e_number(code) or code
+                    child = ParsedIngredient(
+                        name=code,
+                        raw_text=code,
+                        e_number=child_e,
+                        position=0,
+                    )
+                    item_name = f"{name_part} ({code})" if name_part else code
+                    ing = ParsedIngredient(
+                        name=item_name,
+                        raw_text=raw_part,
+                        e_number=code,
+                        percentage=None,
+                        children=[child],
+                        position=len(ingredients),
+                    )
+                    ingredients.append(ing)
+                continue
+
+            # Case 2: Protective / descriptive clause like [Protected with Antioxidant (319)]
+            m_prot = _RE_PROTECTIVE_PREFIX.match(inner)
+            if m_prot:
+                stripped_inner = inner[m_prot.end():].strip()
+                if name_part:
+                    ingredients.append(_parse_single_ingredient(name_part, position=len(ingredients)))
+
+                sub_parts = _split_top_level(stripped_inner, separators=",;")
+                for sp in sub_parts:
+                    sp_repaired, sp_corrs = repair_additive_ocr(sp)
+                    corrections.extend(sp_corrs)
+                    sp_name, sp_sub = _extract_paren_group(sp_repaired)
+                    if sp_sub:
+                        sp_codes = parse_additive_codes_from_inner(sp_sub)
+                        if sp_codes:
+                            for c in sp_codes:
+                                c_e = _extract_e_number(c) or c
+                                c_child = ParsedIngredient(name=c, raw_text=c, e_number=c_e, position=0)
+                                c_name = f"{sp_name} ({c})" if sp_name else c
+                                ingredients.append(ParsedIngredient(
+                                    name=c_name,
+                                    raw_text=sp,
+                                    e_number=c,
+                                    children=[c_child],
+                                    position=len(ingredients),
+                                ))
+                            continue
+                    ingredients.append(_parse_single_ingredient(sp_repaired, position=len(ingredients)))
+                continue
+
+            # Case 3: Inner has its own sub-bracketed additive code like [Antioxidant (319)]
+            inner_name, inner_sub = _extract_paren_group(inner)
+            if inner_sub:
+                inner_codes = parse_additive_codes_from_inner(inner_sub)
+                if inner_codes:
+                    if name_part:
+                        ingredients.append(_parse_single_ingredient(name_part, position=len(ingredients)))
+                    for c in inner_codes:
+                        c_e = _extract_e_number(c) or c
+                        c_child = ParsedIngredient(name=c, raw_text=c, e_number=c_e, position=0)
+                        c_name = f"{inner_name} ({c})" if inner_name else c
+                        ingredients.append(ParsedIngredient(
+                            name=c_name,
+                            raw_text=inner,
+                            e_number=c,
+                            children=[c_child],
+                            position=len(ingredients),
+                        ))
+                    continue
+
+        # Step 6c: Regular ingredient parsing
+        ingredient = _parse_single_ingredient(repaired_part, position=len(ingredients))
+        # Per spec: Never drop bracket content silently; if it can't be parsed into children, keep it as its own chip
+        if inner and not ingredient.children and not _RE_PURE_PERCENTAGE.match(inner):
+            if name_part:
+                ingredient.name = name_part
+                ingredients.append(ingredient)
+                ingredients.append(_parse_single_ingredient(inner, position=len(ingredients)))
+                continue
         ingredients.append(ingredient)
 
     return ParsedResult(
@@ -394,4 +638,5 @@ def parse_ingredients(text: str) -> ParsedResult:
         may_contain_allergens=may_contain_allergens,
         raw_text=original_text,
         has_ingredients_marker=has_ingredients_marker,
+        corrections=corrections,
     )
