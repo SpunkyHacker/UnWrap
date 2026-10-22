@@ -1,0 +1,6 @@
+{
+  "name": "Wheat & Soy Cookies",
+  "label_text": "Enriched Flour (Wheat Flour, Niacin, Reduced Iron), Sugar, Palm Oil, Chocolate Chips, Salt. Contains: Wheat, Soy.",
+  "profile": ["wheat", "soy"],
+  "expected_status": "contains"
+}

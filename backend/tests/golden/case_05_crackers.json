@@ -1,0 +1,6 @@
+{
+  "name": "Crackers Facility Advisory",
+  "label_text": "Rice Flour, Sesame Seeds, Salt, Vegetable Oil. Manufactured in a facility that also handles Tree Nuts.",
+  "profile": ["tree_nuts"],
+  "expected_status": "might_contain"
+}
