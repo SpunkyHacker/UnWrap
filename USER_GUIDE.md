@@ -25,8 +25,8 @@ Follow these steps in order to install all required dependencies:
 ### Step 1: Clone the Repository
 Open a terminal and navigate to the project directory:
 ```bash
-git clone https://github.com/your-username/WillItKillMe.git
-cd WillItKillMe
+git clone https://github.com/SpunkyHacker/UnWrap.git)
+cd UnWrap
 ```
 
 ---
@@ -349,13 +349,3 @@ Follow this walkthrough in the web UI (**`http://localhost:5173`**) or on your m
   ```
 
 ---
-
-## 7. Submission Checklist Verification
-
-- [x] Python virtual environment cleanly activates with all packages in `requirements.txt`.
-- [x] All 162 automated tests pass with `pytest`.
-- [x] Vision smoke test runs with `python scripts/smoke_test.py`.
-- [x] FastAPI backend runs cleanly on `http://localhost:8000`.
-- [x] React PWA frontend builds and runs cleanly on `http://localhost:5173`.
-- [x] Automatic fallback between local MLX-VLM and native Apple Vision OCR operates seamlessly.
-- [x] Cloudflare tunnel script (`scripts/tunnel.sh`) allows zero-config smartphone testing.
