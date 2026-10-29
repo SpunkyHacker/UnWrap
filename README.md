@@ -10,6 +10,8 @@
 [![Apple Silicon](https://img.shields.io/badge/MLX-Apple%20Silicon-purple.svg)](https://github.com/ml-explore/mlx)
 [![Tests](https://img.shields.io/badge/Pytest-162%20passed-brightgreen.svg)](https://docs.pytest.org/)
 
+👉 **Looking for evaluator instructions? Read the [User Guide (Setup, Run, Test)](USER_GUIDE.md).**
+
 ---
 
 ## Table of Contents
