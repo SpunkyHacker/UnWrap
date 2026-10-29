@@ -1,4 +1,4 @@
-# Unwrap (WillItKillMe)
+# Unwrap 
 
 > **Understand what you eat.** Instant allergen alerts, deterministic ingredient parsing, and visual AI ingredient explainer cards powered by on-device vision models and Apple Silicon acceleration.
 
