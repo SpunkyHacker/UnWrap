@@ -1,0 +1,17 @@
+{
+  "ingredients_text": "Enriched Flour (Wheat Flour, Niacin, Reduced Iron), Sugar, Palm Oil, Chocolate Chips (Sugar, Cocoa Mass, Cocoa Butter, Soy Lecithin), Salt, Leavening (Baking Soda).",
+  "contains_statement": "Wheat, Soy",
+  "may_contain_statement": "May contain Milk, Tree Nuts",
+  "tags": [
+    "synthetic",
+    "nested_brackets",
+    "allergens_present"
+  ],
+  "expected_allergen_results": {
+    "wheat": "CONTAINS",
+    "soy": "CONTAINS",
+    "milk": "MIGHT_CONTAIN",
+    "tree_nuts": "MIGHT_CONTAIN",
+    "fish": "CLEAR"
+  }
+}

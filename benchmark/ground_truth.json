@@ -1,0 +1,332 @@
+[
+  {
+    "photo_id": "001",
+    "is_real_photo": false,
+    "true_text": "Filled Chocolate. Ingredients: Milk Chocolate (60%) - Sugar, Milk Solids (11%), Cocoa Butter, Cocoa Solids, Fractionated Fat, Emulsifiers (442,476), Flavours (Natural, Nature Identical and Artificial (Caramel and Vanilla) Flavouring Substances). Centre Filling (40%) - Milk Solids (16%), Sugar,Fractionated fat, Palm Superolein, Emulsifiers (442,476), Flavours (Nature Identical Flavouring Substance).",
+    "true_ingredients": ["Milk Chocolate", "Sugar", "Milk Solids", "Cocoa Butter", "Cocoa Solids", "Fractionated Fat", "Emulsifiers (442,476)", "Flavours (Natural, Nature Identical and Artificial (Caramel and Vanilla) Flavouring Substances)", "Centre Filling", "Milk Solids", "Sugar", "Fractionated fat", "Palm Superolein", "Emulsifiers (442,476)", "Flavours (Nature Identical Flavouring Substance)"],
+    "contains_statement": "Milk, Soy.",
+    "may_contain_statement": "Tree Nuts, Wheat.",
+    "condition": "clean",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "002",
+    "is_real_photo": true,
+    "true_text": "Ingredients: Sugar, Milk Solids (22%*), Cocoa Butter, Cocoa Solids, Emulsifiers (442, 476). CONTAINS ADDED FLAVOUR (NATURAL, NATURE IDENTICAL AND ARTIFICIAL (ETHYL VANILLIN) FLAVOURING SUBSTANCES)",
+    "true_ingredients": ["Sugar", "Milk Solids", "Cocoa Butter", "Cocoa Solids", "Emulsifiers (442, 476)"],
+    "contains_statement": "Milk.",
+    "may_contain_statement": null,
+    "condition": "curved",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "003",
+    "is_real_photo": true,
+    "true_text": "Ingredients: Sugar, Cocoa Butter, Dried Whole MILK, Cocoa Mass, Dried Whey (MILK), Vegetable Fat (Palm, Shea, Sal, Mango Kernel in varying proportions), Emulsifiers (SOY Lecithin, Polyglycerol Polyricinoleate (476)), Vanilla Flavouring.",
+    "true_ingredients": ["Sugar", "Cocoa Butter", "Dried Whole MILK", "Cocoa Mass", "Dried Whey (MILK)", "Vegetable Fat (Palm, Shea, Sal, Mango Kernel in varying proportions)", "Emulsifiers (SOY Lecithin, Polyglycerol Polyricinoleate (476))", "Vanilla Flavouring"],
+    "contains_statement": null,
+    "may_contain_statement": null,
+    "condition": "clean",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "004",
+    "is_real_photo": false,
+    "true_text": "Ingredients Milk Chocolate (69%) (Sugar, Milk solids (14.5%), Cocoa butter (12.8%), Cocoa solids (9.5%), Emulsifier (Soya lecithin), Nature identical (Cream Caramel) and Artificial (Vanilla) flavouring substances) and Wafer (Refined Wheat flour (Maida), Sugar, Hydrogenated vegetable fats, Cocoa solids (1.2%), Milk solids, Fractionated vegetable fat, Raising agent (500(ii)), Yeast, Emulsifier (Soya lecithin), Iodized Salt,Flour treatment agent (516), Artificial (Vanilla) and Nature identical (Cream Caramel) flavouring substances).",
+    "true_ingredients": ["Milk Chocolate", "Sugar", "Milk solids", "Cocoa butter", "Cocoa solids", "Emulsifier (Soya lecithin)", "Nature identical (Cream Caramel) and Artificial (Vanilla) flavouring substances", "Wafer", "Refined Wheat flour (Maida)", "Sugar", "Hydrogenated vegetable fats", "Cocoa solids", "Milk solids", "Fractionated vegetable fat", "Raising agent (500(ii))", "Yeast", "Emulsifier (Soya lecithin)", "Iodized Salt", "Flour treatment agent (516)", "Artificial (Vanilla) and Nature identical (Cream Caramel) flavouring substances"],
+    "contains_statement": "Milk, Soy, Wheat, Sesame.",
+    "may_contain_statement": null,
+    "condition": "clean",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "005",
+    "is_real_photo": false,
+    "true_text": "Ingredients: Sugar, Milk Solids (#24.6%), Cocoa butter, Cocoa Solids (#12.7%), Emulsifiers (442, 476) and Flavor (Artificial flavouring substance - Vanilla)",
+    "true_ingredients": ["Sugar", "Milk Solids", "Cocoa butter", "Cocoa Solids", "Emulsifiers (442, 476)", "Flavor (Artificial flavouring substance - Vanilla)"],
+    "contains_statement": "MILK.",
+    "may_contain_statement": "NUT, WHEAT AND SOY.",
+    "condition": "clean",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "006",
+    "is_real_photo": true,
+    "true_text": "Ingredients: sugar, cocoa butter, whole milk powder, cocoa mass, lactose (from milk), hazelnuts, vegetable fat (palm kernel, coconut, palm), almonds, skim milk powder, emulsifier (soya lecithin), glucose syrup, barley malt extract, anhydrous milk fat, artificial flavourings (vanillin, caramel), vanilla.",
+    "true_ingredients": ["sugar", "cocoa butter", "whole milk powder", "cocoa mass", "lactose (from milk)", "hazelnuts", "vegetable fat (palm kernel, coconut, palm)", "almonds", "skim milk powder", "emulsifier (soya lecithin)", "glucose syrup", "barley malt extract", "anhydrous milk fat", "artificial flavourings (vanillin, caramel)", "vanilla"],
+    "contains_statement": "hazelnuts, almonds, cow's milk, barley and soya.",
+    "may_contain_statement": "other nuts.",
+    "condition": "clean",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "007",
+    "is_real_photo": true,
+    "true_text": "INGREDIENTS: Dark chocolate (26%) (cocoa mass, sugar, cocoa butter, emulsifier (soya lecithin), flavouring), milk chocolate (25%) (sugar, cocoa butter, whole milk powder, cocoa mass, emulsifier (soya lecithin), flavouring), white chocolate (13%) (sugar, cocoa butter, whole milk powder, emulsifier (soya lecithin), flavouring), sugar, rapeseed oil, palm oil, glucose syrup, caramelised biscuits (wheat flour, sugar, rapeseed oil, palm oil, raising agent (sodium bicarbonate), soya flour, salt, cinnamon), coconut oil, cocoa mass, hazelnuts, raspberry purée, invert sugar syrup, cocoa butter, milk powder, milk fat, sea salt, lemon juice, cherry juice, acid (citric acid), milk solids, whole milk powder, coffee, emulsifier (soya lecithin), raspberry pieces, meringue pieces (sugar, shea oil, palm oil, wheat starch, dried egg albumen, sunflower lecithin), flavouring, butter (milk), salt, milk whey powder.",
+    "true_ingredients": ["Dark chocolate (cocoa mass, sugar, cocoa butter, emulsifier (soya lecithin), flavouring)", "milk chocolate (sugar, cocoa butter, whole milk powder, cocoa mass, emulsifier (soya lecithin), flavouring)", "white chocolate (sugar, cocoa butter, whole milk powder, emulsifier (soya lecithin), flavouring)", "sugar", "rapeseed oil", "palm oil", "glucose syrup", "caramelised biscuits (wheat flour, sugar, rapeseed oil, palm oil, raising agent (sodium bicarbonate), soya flour, salt, cinnamon)", "coconut oil", "cocoa mass", "hazelnuts", "raspberry purée", "invert sugar syrup", "cocoa butter", "milk powder", "milk fat", "sea salt", "lemon juice", "cherry juice", "acid (citric acid)", "milk solids", "whole milk powder", "coffee", "emulsifier (soya lecithin)", "raspberry pieces", "meringue pieces (sugar, shea oil, palm oil, wheat starch, dried egg albumen, sunflower lecithin)", "flavouring", "butter (milk)", "salt", "milk whey powder"],
+    "contains_statement": null,
+    "may_contain_statement": "other nuts",
+    "condition": "dense_additives",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "008",
+    "is_real_photo": true,
+    "true_text": "Ingredients: Sugar, cocoa butter, whole milk powder, cream, skimmed milk powder, butterfat, Amaretto, hazelnuts, emulsifier: soy lecithin, cocoa mass, flavour.",
+    "true_ingredients": ["Sugar", "cocoa butter", "whole milk powder", "cream", "skimmed milk powder", "butterfat", "Amaretto", "hazelnuts", "emulsifier: soy lecithin", "cocoa mass", "flavour"],
+    "contains_statement": null,
+    "may_contain_statement": "traces of gluten, eggs, peanuts, other nuts and shell fruits.",
+    "condition": "curved",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "009",
+    "is_real_photo": false,
+    "true_text": "Ingredients Sugar, Raisins (18%*), Cocoa Butter, Cocoa Solids, Milk Solids, Fractionated Fat, Emulsifiers (442, 476), Flavours (Natural, Nature Identical and Artificial (Rum, Raisin, Vanilla) Flavouring Substances).",
+    "true_ingredients": ["Sugar", "Raisins", "Cocoa Butter", "Cocoa Solids", "Milk Solids", "Fractionated Fat", "Emulsifiers (442, 476)", "Flavours (Natural, Nature Identical and Artificial (Rum, Raisin, Vanilla) Flavouring Substances)"],
+    "contains_statement": "Milk, Soy, Sulphites.",
+    "may_contain_statement": "Tree Nuts.",
+    "condition": "clean",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "010",
+    "is_real_photo": false,
+    "true_text": "INGREDIENTS Sugar, cocoa butter, whole milk powder, cocoa mass, lactose (from milk), skim milk powder, emulsifier (soya lecithin), barley malt extract, artificial flavouring (vanillin).",
+    "true_ingredients": ["Sugar", "cocoa butter", "whole milk powder", "cocoa mass", "lactose (from milk)", "skim milk powder", "emulsifier (soya lecithin)", "barley malt extract", "artificial flavouring (vanillin)"],
+    "contains_statement": "cow's milk, soya and barley.",
+    "may_contain_statement": "hazelnuts, almonds and other nuts.",
+    "condition": "clean",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "011",
+    "is_real_photo": false,
+    "true_text": "Milk Chocolate. Ingredients: Sugar, Milk Solids (23%*), Cocoa Butter, Cocoa Solids, Fractionated Fat, Emulsifiers (442, 476), Flavours (Natural, Nature Identical and Artificial (Vanilla) Flavouring Substances).",
+    "true_ingredients": ["Milk Chocolate", "Sugar", "Milk Solids", "Cocoa Butter", "Cocoa Solids", "Fractionated Fat", "Emulsifiers (442, 476)", "Flavours (Natural, Nature Identical and Artificial (Vanilla) Flavouring Substances)"],
+    "contains_statement": "Milk, Soy.",
+    "may_contain_statement": "Tree Nuts, Wheat, Barley.",
+    "condition": "clean",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "012",
+    "is_real_photo": true,
+    "true_text": "INGREDIENTS: Quinoa Flour, Potato Starch, Corn Starch, Sunflower And/Or Safflower Oil, Corn Flour, Organic Buttermilk, Salt, Sugar, Rice Flour, Organic Cheddar Cheese, Onion Powder, Natural Flavors, Organic Tapioca Syrup Solids, Organic Cream, Organic Whey, Yeast Extract, Lactic Acid, Extract of Paprika, Citric Acid, Garlic Powder, Extract of Turmeric.",
+    "true_ingredients": ["Quinoa Flour", "Potato Starch", "Corn Starch", "Sunflower And/Or Safflower Oil", "Corn Flour", "Organic Buttermilk", "Salt", "Sugar", "Rice Flour", "Organic Cheddar Cheese", "Onion Powder", "Natural Flavors", "Organic Tapioca Syrup Solids", "Organic Cream", "Organic Whey", "Yeast Extract", "Lactic Acid", "Extract of Paprika", "Citric Acid", "Garlic Powder", "Extract of Turmeric"],
+    "contains_statement": "Milk Ingredients.",
+    "may_contain_statement": null,
+    "condition": "clean",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "013",
+    "is_real_photo": false,
+    "true_text": "INGREDIENTS - Soybeans (50%), tapioca (40%), sunflower oil, salt, black pepper, Rhizopus Oligosporus.",
+    "true_ingredients": ["Soybeans", "tapioca", "sunflower oil", "salt", "black pepper", "Rhizopus Oligosporus"],
+    "contains_statement": "Soy. Processed in a facility that also processes Peanuts.",
+    "may_contain_statement": null,
+    "condition": "clean",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "014",
+    "is_real_photo": false,
+    "true_text": "INGREDIENTS Corn (70%), Edible Vegetable Oil (Corn Oil), Sugar, Dehydrated Vegetable Powder (Tomato (1.2%), Onion Powder, Garlic Powder), Iodized Salt, Spices & Herbs (Chilli, Ginger, Cinnamon, Clove, Oregano, Turmeric, Black Pepper & Parsley), Milk Solids (Skim Milk Powder, Whey Powder), Soya Sauce Powder, Corn Starch, Acidity regulator (INS 330, INS 296), Anticaking Agent (INS 551), Flavour Enhancer (INS 627, INS 631)",
+    "true_ingredients": ["Corn", "Edible Vegetable Oil (Corn Oil)", "Sugar", "Dehydrated Vegetable Powder (Tomato, Onion Powder, Garlic Powder)", "Iodized Salt", "Spices & Herbs (Chilli, Ginger, Cinnamon, Clove, Oregano, Turmeric, Black Pepper & Parsley)", "Milk Solids (Skim Milk Powder, Whey Powder)", "Soya Sauce Powder", "Corn Starch", "Acidity regulator (INS 330, INS 296)", "Anticaking Agent (INS 551)", "Flavour Enhancer (INS 627, INS 631)"],
+    "contains_statement": "SOYA AND MILK PRODUCTS",
+    "may_contain_statement": null,
+    "condition": "dense_additives",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "015",
+    "is_real_photo": false,
+    "true_text": "INGREDIENTS: UNBLEACHED AND BLEACHED ENRICHED FLOUR (WHEAT FLOUR, NIACIN, REDUCED IRON, THIAMINE MONONITRATE [VITAMIN B1], RIBOFLAVIN [VITAMIN B2], FOLIC ACID), SUGAR, PALM OIL, HIGH FRUCTOSE CORN SYRUP, SEMISWEET CHOCOLATE CHIPS (SUGAR, CHOCOLATE, COCOA BUTTER, DEXTROSE, SOY LECITHIN), COCOA (PROCESSED WITH ALKALI), GLYCERIN, SORBITOL SYRUP, EGGS, INVERT SUGAR, WATER, MODIFIED CORN STARCH, CORNSTARCH, SOYBEAN OIL, SUGARCANE FIBER, DEXTROSE, BAKING SODA, CHOCOLATE, SALT, CARAMEL COLOR, SOY LECITHIN, VANILLA EXTRACT, XANTHAN GUM, NATURAL AND ARTIFICIAL FLAVOR, NONFAT MILK.",
+    "true_ingredients": ["UNBLEACHED AND BLEACHED ENRICHED FLOUR (WHEAT FLOUR, NIACIN, REDUCED IRON, THIAMINE MONONITRATE [VITAMIN B1], RIBOFLAVIN [VITAMIN B2], FOLIC ACID)", "SUGAR", "PALM OIL", "HIGH FRUCTOSE CORN SYRUP", "SEMISWEET CHOCOLATE CHIPS (SUGAR, CHOCOLATE, COCOA BUTTER, DEXTROSE, SOY LECITHIN)", "COCOA (PROCESSED WITH ALKALI)", "GLYCERIN", "SORBITOL SYRUP", "EGGS", "INVERT SUGAR", "WATER", "MODIFIED CORN STARCH", "CORNSTARCH", "SOYBEAN OIL", "SUGARCANE FIBER", "DEXTROSE", "BAKING SODA", "CHOCOLATE", "SALT", "CARAMEL COLOR", "SOY LECITHIN", "VANILLA EXTRACT", "XANTHAN GUM", "NATURAL AND ARTIFICIAL FLAVOR", "NONFAT MILK"],
+    "contains_statement": "EGG, MILK, SOY, WHEAT.",
+    "may_contain_statement": null,
+    "condition": "dense_additives",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "016",
+    "is_real_photo": false,
+    "true_text": "INGREDIENTS: UNBLEACHED ENRICHED FLOUR (WHEAT FLOUR, NIACIN, REDUCED IRON, THIAMINE MONONITRATE [VITAMIN B1], RIBOFLAVIN [VITAMIN B2], FOLIC ACID), SEMISWEET CHOCOLATE CHIPS (SUGAR, CHOCOLATE, DEXTROSE, COCOA BUTTER, SOY LECITHIN, NATURAL FLAVOR, NONFAT MILK), SUGAR, SOYBEAN AND/OR CANOLA OIL, PALM OIL, HIGH FRUCTOSE CORN SYRUP, LEAVENING (BAKING SODA, AMMONIUM PHOSPHATE), SALT, NATURAL AND ARTIFICIAL FLAVOR, CARAMEL COLOR.",
+    "true_ingredients": ["UNBLEACHED ENRICHED FLOUR (WHEAT FLOUR, NIACIN, REDUCED IRON, THIAMINE MONONITRATE [VITAMIN B1], RIBOFLAVIN [VITAMIN B2], FOLIC ACID)", "SEMISWEET CHOCOLATE CHIPS (SUGAR, CHOCOLATE, DEXTROSE, COCOA BUTTER, SOY LECITHIN, NATURAL FLAVOR, NONFAT MILK)", "SUGAR", "SOYBEAN AND/OR CANOLA OIL", "PALM OIL", "HIGH FRUCTOSE CORN SYRUP", "LEAVENING (BAKING SODA, AMMONIUM PHOSPHATE)", "SALT", "NATURAL AND ARTIFICIAL FLAVOR", "CARAMEL COLOR"],
+    "contains_statement": "MILK, WHEAT, SOY.",
+    "may_contain_statement": null,
+    "condition": "clean",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "017",
+    "is_real_photo": false,
+    "true_text": "INGREDIENTS: Corn (78%), Edible Vegetable Oil≈, *Seasoning (Maltodextrin, Milk Solids, Spices and Condiments, Sugar, Iodised Salt, Cheese Powder (0.4%), Milk and Cream Powder Analogue, Hydrolysed Vegetable Protein, Flavour (Natural and Nature Identical Flavouring Substances), Acidity Regulators (262(i), 330), Dehydrated Tomato Powder, Dehydrated Herb (Parsley), Flavour Enhancers (627, 631), Yeast Extract).",
+    "true_ingredients": ["Corn", "Edible Vegetable Oil≈", "*Seasoning (Maltodextrin, Milk Solids, Spices and Condiments, Sugar, Iodised Salt, Cheese Powder, Milk and Cream Powder Analogue, Hydrolysed Vegetable Protein, Flavour (Natural and Nature Identical Flavouring Substances), Acidity Regulators (262(i), 330), Dehydrated Tomato Powder, Dehydrated Herb (Parsley), Flavour Enhancers (627, 631), Yeast Extract)"],
+    "contains_statement": null,
+    "may_contain_statement": null,
+    "condition": "dense_additives",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "018",
+    "is_real_photo": false,
+    "true_text": "INGREDIENTS: SPECIALLY SELECTED POTATOES, VEGETABLE OIL, SEASONING (SUGAR, SALT, MILK INGREDIENTS, DEHYDRATED VEGETABLES [TOMATO, GARLIC, ONION], MONOSODIUM GLUTAMATE, SODIUM ACETATE, CORN MALTODEXTRIN, ACETIC ACID, NATURAL AND ARTIFICIAL FLAVOUR, DEXTROSE, MALIC ACID, CITRIC ACID, COLOUR, MODIFIED CORNSTARCH, SPICES, VINEGAR SOLIDS, DISODIUM INOSINATE, DISODIUM GUANYLATE).",
+    "true_ingredients": ["SPECIALLY SELECTED POTATOES", "VEGETABLE OIL", "SEASONING (SUGAR, SALT, MILK INGREDIENTS, DEHYDRATED VEGETABLES [TOMATO, GARLIC, ONION], MONOSODIUM GLUTAMATE, SODIUM ACETATE, CORN MALTODEXTRIN, ACETIC ACID, NATURAL AND ARTIFICIAL FLAVOUR, DEXTROSE, MALIC ACID, CITRIC ACID, COLOUR, MODIFIED CORNSTARCH, SPICES, VINEGAR SOLIDS, DISODIUM INOSINATE, DISODIUM GUANYLATE)"],
+    "contains_statement": "MILK INGREDIENTS.",
+    "may_contain_statement": null,
+    "condition": "dense_additives",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "019",
+    "is_real_photo": false,
+    "true_text": "Ingredients: Potatoes, Vegetable Oil (Sunflower, Corn, and/or Canola Oil), Flamin' Hot Seasoning (Maltodextrin [Made from Corn], Salt, Sugar, Monosodium Glutamate, Yeast Extract, Sunflower Oil, Citric Acid, Cheddar Cheese [Milk, Cheese Cultures, Salt, Enzymes], Artificial Color [Red 40 Lake, Yellow 6 Lake, Yellow 6], Onion Powder, Whey, Corn Syrup Solids, Buttermilk, Romano Cheese [Part-Skim Cow's Milk, Cheese Cultures, Salt, Enzymes], Whey Protein Concentrate, Garlic Powder, Natural Flavors, Sodium Caseinate, and Sodium Diacetate).",
+    "true_ingredients": ["Potatoes", "Vegetable Oil (Sunflower, Corn, and/or Canola Oil)", "Flamin' Hot Seasoning (Maltodextrin [Made from Corn], Salt, Sugar, Monosodium Glutamate, Yeast Extract, Sunflower Oil, Citric Acid, Cheddar Cheese [Milk, Cheese Cultures, Salt, Enzymes], Artificial Color [Red 40 Lake, Yellow 6 Lake, Yellow 6], Onion Powder, Whey, Corn Syrup Solids, Buttermilk, Romano Cheese [Part-Skim Cow's Milk, Cheese Cultures, Salt, Enzymes], Whey Protein Concentrate, Garlic Powder, Natural Flavors, Sodium Caseinate, and Sodium Diacetate)"],
+    "contains_statement": "MILK INGREDIENTS.",
+    "may_contain_statement": null,
+    "condition": "dense_additives",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "020",
+    "is_real_photo": false,
+    "true_text": "INGREDIENTS: FRUIT PUREE (GRAPE, PEACH, ORANGE, STRAWBERRY AND RASPBERRY), CORN SYRUP, SUGAR, MODIFIED CORN STARCH, MODIFIED TAPIOCA STARCH, GELATIN, CONCORD GRAPE JUICE FROM CONCENTRATE, PECTIN, CITRIC ACID (ACIDULANT), LACTIC ACID, NATURAL AND ARTIFICIAL FLAVORS, ASCORBIC ACID (VITAMIN C), ALPHA TOCOPHEROL ACETATE (VITAMIN E), VITAMIN A PALMITATE, SODIUM CITRATE, COCONUT OIL, CARNAUBA WAX, ANNATTO (COLOR), TURMERIC (COLOR), RED 40, AND BLUE 1.",
+    "true_ingredients": ["FRUIT PUREE (GRAPE, PEACH, ORANGE, STRAWBERRY AND RASPBERRY)", "CORN SYRUP", "SUGAR", "MODIFIED CORN STARCH", "MODIFIED TAPIOCA STARCH", "GELATIN", "CONCORD GRAPE JUICE FROM CONCENTRATE", "PECTIN", "CITRIC ACID (ACIDULANT)", "LACTIC ACID", "NATURAL AND ARTIFICIAL FLAVORS", "ASCORBIC ACID (VITAMIN C)", "ALPHA TOCOPHEROL ACETATE (VITAMIN E)", "VITAMIN A PALMITATE", "SODIUM CITRATE", "COCONUT OIL", "CARNAUBA WAX", "ANNATTO (COLOR)", "TURMERIC (COLOR)", "RED 40", "AND BLUE 1"],
+    "contains_statement": null,
+    "may_contain_statement": null,
+    "condition": "dense_additives",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "021",
+    "is_real_photo": true,
+    "true_text": "INGREDIENTS: Potato, Edible Vegetable Oil, *Spices & Condiments (Onion Powder, Chilli Powder, Dry Mango Powder, Coriander Powder, Ginger Powder, Garlic Powder, Black Pepper Powder, Turmeric Powder, Cumin), Salt, Black Salt, Sugar, Tomato Powder, Citric acid, Tartaric Acid.",
+    "true_ingredients": ["Potato", "Edible Vegetable Oil", "*Spices & Condiments (Onion Powder, Chilli Powder, Dry Mango Powder, Coriander Powder, Ginger Powder, Garlic Powder, Black Pepper Powder, Turmeric Powder, Cumin)", "Salt", "Black Salt", "Sugar", "Tomato Powder", "Citric acid", "Tartaric Acid"],
+    "contains_statement": null,
+    "may_contain_statement": null,
+    "condition": "clean",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "022",
+    "is_real_photo": false,
+    "true_text": "INGREDIENTS : REFINED WHEAT FLOUR (MAIDA) (67%), EDIBLE VEGETABLE OIL (PALMOLEIN OIL) (23%), CORN STARCH (7.5%), SPICES & CONDIMENTS (RED CHILLI POWDER, DRY MANGO POWDER), BLACK SALT, EDIBLE COMMON SALT, BICARBONATE OF SODA INS 500 (II), SODIUM CARBONATE INS 500 (I) AND CALCIUM CARBONATE (INS 170).",
+    "true_ingredients": ["REFINED WHEAT FLOUR (MAIDA)", "EDIBLE VEGETABLE OIL (PALMOLEIN OIL)", "CORN STARCH", "SPICES & CONDIMENTS (RED CHILLI POWDER, DRY MANGO POWDER)", "BLACK SALT", "EDIBLE COMMON SALT", "BICARBONATE OF SODA INS 500 (II)", "SODIUM CARBONATE INS 500 (I)", "AND CALCIUM CARBONATE (INS 170)"],
+    "contains_statement": "WHEAT",
+    "may_contain_statement": null,
+    "condition": "clean",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "023",
+    "is_real_photo": true,
+    "true_text": "INGREDIENTS: ENRICHED WHEAT FLOUR, SUGAR/GLUCOSE-FRUCTOSE, DARK CHOCOLATE CHUNK (CHOCOLATE LIQUOR, SUGAR, DEXTROSE, COCOA BUTTER, MILK INGREDIENTS, SOYA LECITHIN, NATURAL FLAVOUR), CHOCOLATE CHIPS (SUGAR, CHOCOLATE LIQUOR, DEXTROSE, COCOA BUTTER, MILK INGREDIENTS, SOYA LECITHIN, SALT, ARTIFICIAL FLAVOUR), MODIFIED PALM OIL, COCOA POWDER, CANOLA AND/OR SOYA OIL, LIQUID WHOLE EGGS, SODIUM BICARBONATE, SALT, BAKING POWDER, SOYA LECITHIN, NATURAL AND ARTIFICIAL FLAVOUR.",
+    "true_ingredients": ["ENRICHED WHEAT FLOUR", "SUGAR/GLUCOSE-FRUCTOSE", "DARK CHOCOLATE CHUNK (CHOCOLATE LIQUOR, SUGAR, DEXTROSE, COCOA BUTTER, MILK INGREDIENTS, SOYA LECITHIN, NATURAL FLAVOUR)", "CHOCOLATE CHIPS (SUGAR, CHOCOLATE LIQUOR, DEXTROSE, COCOA BUTTER, MILK INGREDIENTS, SOYA LECITHIN, SALT, ARTIFICIAL FLAVOUR)", "MODIFIED PALM OIL", "COCOA POWDER", "CANOLA AND/OR SOYA OIL", "LIQUID WHOLE EGGS", "SODIUM BICARBONATE", "SALT", "BAKING POWDER", "SOYA LECITHIN", "NATURAL AND ARTIFICIAL FLAVOUR"],
+    "contains_statement": null,
+    "may_contain_statement": "PEANUTS AND NUTS.",
+    "condition": "clean",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "024",
+    "is_real_photo": false,
+    "true_text": "Ingredients: Enriched Corn Meal (Corn Meal, Ferrous Sulfate, Niacin, Thiamin Mononitrate, Riboflavin, and Folic Acid), Vegetable Oil (Corn, Canola, and/or Sunflower Oil), Cheese Seasoning (Whey, Cheddar Cheese [Milk, Cheese Cultures, Salt, Enzymes], Canola Oil, Maltodextrin [Made From Corn], Salt, Whey Protein Concentrate, Monosodium Glutamate, Natural and Artificial Flavors, Lactic Acid, Citric Acid, Artificial Color [Yellow 6]), and Salt.",
+    "true_ingredients": ["Enriched Corn Meal (Corn Meal, Ferrous Sulfate, Niacin, Thiamin Mononitrate, Riboflavin, and Folic Acid)", "Vegetable Oil (Corn, Canola, and/or Sunflower Oil)", "Cheese Seasoning (Whey, Cheddar Cheese [Milk, Cheese Cultures, Salt, Enzymes], Canola Oil, Maltodextrin [Made From Corn], Salt, Whey Protein Concentrate, Monosodium Glutamate, Natural and Artificial Flavors, Lactic Acid, Citric Acid, Artificial Color [Yellow 6])", "and Salt"],
+    "contains_statement": "MILK INGREDIENTS.",
+    "may_contain_statement": null,
+    "condition": "dense_additives",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "025",
+    "is_real_photo": true,
+    "true_text": "Ingredients: Cultured Pasteurized Grade A Low Fat Milk, Sugar, Modified Corn Starch. Contains 1% or less of: Kosher Gelatin, Citric Acid, Natural Flavor, Potassium Sorbate Added to Maintain Freshness, Colored with Carmine, Vitamin A Acetate, Vitamin D3.",
+    "true_ingredients": ["Cultured Pasteurized Grade A Low Fat Milk", "Sugar", "Modified Corn Starch", "Kosher Gelatin", "Citric Acid", "Natural Flavor", "Potassium Sorbate Added to Maintain Freshness", "Colored with Carmine", "Vitamin A Acetate", "Vitamin D3"],
+    "contains_statement": null,
+    "may_contain_statement": null,
+    "condition": "curved",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "026",
+    "is_real_photo": true,
+    "true_text": "INGREDIENTS: DICED TOMATOES (TOMATOES, TOMATO JUICE, CALCIUM CHLORIDE [STABILIZER], CITRIC ACID), MANGOES, MANGO PURÉE (MANGOES, CITRIC ACID), PINEAPPLE JUICE CONCENTRATE, HATCH GREEN CHILES (HATCH GREEN CHILES, LIME JUICE CONCENTRATE), RED BELL PEPPERS, ONIONS, DISTILLED WHITE VINEGAR, SEA SALT, ONION POWDER, GARLIC PURÉE, LIME JUICE CONCENTRATE, HABANERO PURÉE (HABANERO PEPPERS, SALT, CITRIC ACID), SMOKED PAPRIKA, CILANTRO FLAKES.",
+    "true_ingredients": ["DICED TOMATOES (TOMATOES, TOMATO JUICE, CALCIUM CHLORIDE [STABILIZER], CITRIC ACID)", "MANGOES", "MANGO PURÉE (MANGOES, CITRIC ACID)", "PINEAPPLE JUICE CONCENTRATE", "HATCH GREEN CHILES (HATCH GREEN CHILES, LIME JUICE CONCENTRATE)", "RED BELL PEPPERS", "ONIONS", "DISTILLED WHITE VINEGAR", "SEA SALT", "ONION POWDER", "GARLIC PURÉE", "LIME JUICE CONCENTRATE", "HABANERO PURÉE (HABANERO PEPPERS, SALT, CITRIC ACID)", "SMOKED PAPRIKA", "CILANTRO FLAKES"],
+    "contains_statement": null,
+    "may_contain_statement": null,
+    "condition": "clean",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "027",
+    "is_real_photo": true,
+    "true_text": "INGREDIENTS: WATER, TOMATO PUREE (WATER, TOMATO PASTE), SUGAR, SOYBEAN OIL, DISTILLED VINEGAR, SALT, LESS THAN 2% OF: MODIFIED CORN STARCH, DEHYDRATED ONION, PHOSPHORIC ACID, XANTHAN GUM, NATURAL FLAVOR, DEHYDRATED GARLIC, POTASSIUM SORBATE AND CALCIUM DISODIUM EDTA (PRESERVATIVES), CITRIC ACID, GUAR GUM, RED 40, YELLOW 6, BLUE 1.",
+    "true_ingredients": ["WATER", "TOMATO PUREE (WATER, TOMATO PASTE)", "SUGAR", "SOYBEAN OIL", "DISTILLED VINEGAR", "SALT", "LESS THAN 2% OF: MODIFIED CORN STARCH", "DEHYDRATED ONION", "PHOSPHORIC ACID", "XANTHAN GUM", "NATURAL FLAVOR", "DEHYDRATED GARLIC", "POTASSIUM SORBATE AND CALCIUM DISODIUM EDTA (PRESERVATIVES)", "CITRIC ACID", "GUAR GUM", "RED 40", "YELLOW 6", "BLUE 1"],
+    "contains_statement": null,
+    "may_contain_statement": null,
+    "condition": "curved",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "028",
+    "is_real_photo": true,
+    "true_text": "Soup Powder. Ingredients: Sugar, Potato Starch, Bread Croutons (13.8%) (Refined Wheat Flour (Maida), Hydrogenated Palm Oil, Seasoning, Iodised salt, Yeast, Rosemary Extract), #Dehydrated Vegetables (Tomato Paste Solids (6.9%), Onion Powder, Garlic Powder, Leeks), Maltodextrin, Iodised salt, Hydrolyzed Vegetable Protein, Hydrogenated Palm Oil, Thickener - 415, Acidity Regulator - 33[unreadable], Red Beet Juice Powder (Anti caking agent - 5[unreadable]), Anti caking agent - 5[unreadable], Flavours - Nature Identical flavou[unreadable] substances, Spices & Condiment[unreadable], Oleoresin Chilli, Flavour Enhancer - 627 & 631.",
+    "true_ingredients": ["Sugar", "Potato Starch", "Bread Croutons (Refined Wheat Flour (Maida), Hydrogenated Palm Oil, Seasoning, Iodised salt, Yeast, Rosemary Extract)", "#Dehydrated Vegetables (Tomato Paste Solids, Onion Powder, Garlic Powder, Leeks)", "Maltodextrin", "Iodised salt", "Hydrolyzed Vegetable Protein", "Hydrogenated Palm Oil", "Thickener - 415", "Acidity Regulator - 33[unreadable]", "Red Beet Juice Powder (Anti caking agent - 5[unreadable])", "Anti caking agent - 5[unreadable]", "Flavours - Nature Identical flavou[unreadable] substances", "Spices & Condiment[unreadable]", "Oleoresin Chilli", "Flavour Enhancer - 627 & 631"],
+    "contains_statement": null,
+    "may_contain_statement": null,
+    "condition": "glare",
+    "unreadable_parts": ["0", "51", "51", "ring", "s"]
+  },
+  {
+    "photo_id": "029",
+    "is_real_photo": true,
+    "true_text": "INGREDIENTS: NUT & NUT FLOUR BLEND (ALMONDS, ORGANIC COCONUTS), HONEY, SEED BLEND (SUNFLOWER, FLAX, CHIA), TAPIOCA STARCH, ORGANIC COCONUT OIL, MOLASSES, ORGANIC RAISINS, CARROTS, RAISIN JUICE CONCENTRATE (FOR FRESHNESS), EGG WHITES, ORGANIC SPICES (CINNAMON, NUTMEG, CLOVE, GINGER), SEA SALT, BAKING SODA, ROSEMARY EXTRACT (FOR FRESHNESS)",
+    "true_ingredients": ["NUT & NUT FLOUR BLEND (ALMONDS, ORGANIC COCONUTS)", "HONEY", "SEED BLEND (SUNFLOWER, FLAX, CHIA)", "TAPIOCA STARCH", "ORGANIC COCONUT OIL", "MOLASSES", "ORGANIC RAISINS", "CARROTS", "RAISIN JUICE CONCENTRATE (FOR FRESHNESS)", "EGG WHITES", "ORGANIC SPICES (CINNAMON, NUTMEG, CLOVE, GINGER)", "SEA SALT", "BAKING SODA", "ROSEMARY EXTRACT (FOR FRESHNESS)"],
+    "contains_statement": "ALMONDS, COCONUTS, EGGS",
+    "may_contain_statement": null,
+    "condition": "small_print",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "030",
+    "is_real_photo": true,
+    "true_text": "INGREDIENTS: CHICKEN BROTH: WATER CHICKEN FLAVOR (CHICKEN BROTH, RENDERED CHICKEN FAT, SALT, FLAVOR, DISODIUM INOSINATE & DISODIUM GUANYLATE, POLYSORBATE 60, XANTHAN GUM), WHEAT FLOUR ENRICHED WITH (NIACIN, IRON, THIAMINE MONONITRATE, RIBOFLAVIN, FOLIC ACID), COOKED WHITE MEAT CHICKEN, INTERESTERIFIED SOYBEAN OIL, HYDROGENATED SOYBEAN OIL, CARROTS, PEAS, CONTAINS 2% OR LESS OF EACH OF: CELERY, MODIFIED CORN STARCH, ONIONS, HEAVY WHIPPING CREAM, SALT, RENDERED CHICKEN FAT, SOYBEAN OIL, WHEY POWDER, NONFAT DRY MILK, SUGAR, ISOLATED SOY PROTEIN, CARRAGEENAN, METHYLCELLULOSE, AUTOLYZED YEAST EXTRACT, FLAVORS, MONO- & DIGLYCERIDES, BLACK PEPPER, TURMERIC, CARAMEL COLOR, SOY LECITHIN.",
+    "true_ingredients": ["CHICKEN BROTH: WATER CHICKEN FLAVOR (CHICKEN BROTH, RENDERED CHICKEN FAT, SALT, FLAVOR, DISODIUM INOSINATE & DISODIUM GUANYLATE, POLYSORBATE 60, XANTHAN GUM)", "WHEAT FLOUR ENRICHED WITH (NIACIN, IRON, THIAMINE MONONITRATE, RIBOFLAVIN, FOLIC ACID)", "COOKED WHITE MEAT CHICKEN", "INTERESTERIFIED SOYBEAN OIL", "HYDROGENATED SOYBEAN OIL", "CARROTS", "PEAS", "CONTAINS 2% OR LESS OF EACH OF: CELERY", "MODIFIED CORN STARCH", "ONIONS", "HEAVY WHIPPING CREAM", "SALT", "RENDERED CHICKEN FAT", "SOYBEAN OIL", "WHEY POWDER", "NONFAT DRY MILK", "SUGAR", "ISOLATED SOY PROTEIN", "CARRAGEENAN", "METHYLCELLULOSE", "AUTOLYZED YEAST EXTRACT", "FLAVORS", "MONO- & DIGLYCERIDES", "BLACK PEPPER", "TURMERIC", "CARAMEL COLOR", "SOY LECITHIN"],
+    "contains_statement": "MILK, SOY, WHEAT.",
+    "may_contain_statement": null,
+    "condition": "clean",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "031",
+    "is_real_photo": true,
+    "true_text": "INGREDIENTS: SUGAR, VEGETABLE OIL, HAZELNUTS (13%), SKIM MILK POWDER (8.7%), FAT-REDUCED COCOA POWDER (7.4%), EMULSIFIER (SOY LECITHIN), FLAVOURING (VANILLIN).",
+    "true_ingredients": ["SUGAR", "VEGETABLE OIL", "HAZELNUTS", "SKIM MILK POWDER", "FAT-REDUCED COCOA POWDER", "EMULSIFIER (SOY LECITHIN)", "FLAVOURING (VANILLIN)"],
+    "contains_statement": "HAZELNUTS, MILK, SOY.",
+    "may_contain_statement": null,
+    "condition": "curved",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "032",
+    "is_real_photo": false,
+    "true_text": "Ingredients: Rolled Oats (25.1%), Candied Fruit and Nut (24%) {Candied Cranberry (14%), Almonds (10%)}, Sugar, Oat Flour (10.7%), Edible Vegetable Oil (Palmolein), Rice (4.2%), Whole Wheat (3.9%), Rice Flour (2.7%), Liquid Glucose, Corn Flour (1.8%), Honey, Malt Extract, Wheat Bran (0.6%), Wheat Flour (0.5%), Iodized Salt, Dextrose, Barley Flour (0.1%), Vitamins, Raising Agent (INS 500ii), Minerals, Antioxidant (INS 320)",
+    "true_ingredients": ["Rolled Oats", "Candied Fruit and Nut {Candied Cranberry, Almonds}", "Sugar", "Oat Flour", "Edible Vegetable Oil (Palmolein)", "Rice", "Whole Wheat", "Rice Flour", "Liquid Glucose", "Corn Flour", "Honey", "Malt Extract", "Wheat Bran", "Wheat Flour", "Iodized Salt", "Dextrose", "Barley Flour", "Vitamins", "Raising Agent (INS 500ii)", "Minerals", "Antioxidant (INS 320)"],
+    "contains_statement": "GLUTEN, ALMONDS.",
+    "may_contain_statement": "TRACES OF SOY AND MILK.",
+    "condition": "clean",
+    "unreadable_parts": []
+  },
+  {
+    "photo_id": "033",
+    "is_real_photo": true,
+    "true_text": "INGREDIENTS: White Vinegar, Water, Soya Bean Oil [Protected with Antioxidant (319)], Sugar, Egg Yolk, Salt, Mustard, Maize Thickener (1422), Food Acid (270), Stabiliser (412), Colours (171, 101), Herb Extract.",
+    "true_ingredients": ["White Vinegar", "Water", "Soya Bean Oil [Protected with Antioxidant (319)]", "Sugar", "Egg Yolk", "Salt", "Mustard", "Maize Thickener (1422)", "Food Acid (270)", "Stabiliser (412)", "Colours (171, 101)", "Herb Extract"],
+    "contains_statement": null,
+    "may_contain_statement": null,
+    "condition": "curved",
+    "unreadable_parts": []
+  }
+]

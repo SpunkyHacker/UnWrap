@@ -1,0 +1,18 @@
+{
+  "ingredients_text": "Wheat Flour (62%), Sugar, Palm Oil, Cocoa Powder, Emulsifier (Soy Lecithin, E322), Salt, Raising Agent (Sodium Bicarbonate), Natural Vanilla Flavour.",
+  "contains_statement": "Wheat, Soy",
+  "may_contain_statement": "Milk, Peanuts",
+  "tags": [
+    "synthetic",
+    "cookies",
+    "clear_text",
+    "allergens_present"
+  ],
+  "expected_allergen_results": {
+    "wheat": "CONTAINS",
+    "soy": "CONTAINS",
+    "milk": "MIGHT_CONTAIN",
+    "peanut": "MIGHT_CONTAIN",
+    "egg": "CLEAR"
+  }
+}

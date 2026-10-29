@@ -219,7 +219,7 @@ def test_chat_injection_attempt_is_ignored(client: TestClient):
         ans = resp.json()["answer"]
         assert "PWNED" not in ans
         assert "SYSTEM COMPROMISED" not in ans
-        assert "safe" not in ans.lower() or "common" in ans.lower()
+        assert "this is safe" not in ans.lower() and "safe to eat" not in ans.lower()
 
 
 def test_chat_input_capped_at_300_chars(client: TestClient):

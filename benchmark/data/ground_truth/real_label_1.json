@@ -1,0 +1,18 @@
+{
+  "ingredients_text": "spices & condiments (43%) (coriander, turmeric, ginger, chilli, cumin, black pepper), iodized salt (20%), dehydrated vegetables (garlic, onion), yeast extract, coconut flakes, maltodextrin, herbs(parsley), capsicum oleoresin, anti-caking agent(INS 551).",
+  "contains_statement": null,
+  "may_contain_statement": null,
+  "tags": [
+    "real_label",
+    "pouch",
+    "spices",
+    "indian_snack"
+  ],
+  "expected_allergen_results": {
+    "milk": "CLEAR",
+    "soy": "CLEAR",
+    "egg": "CLEAR",
+    "peanut": "CLEAR",
+    "tree_nuts": "CONTAINS"
+  }
+}
